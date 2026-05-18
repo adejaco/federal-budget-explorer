@@ -115,26 +115,30 @@ footer p{font-size:12px;color:var(--text3)}
 
 /* ── MOBILE ─────────────────────────────────────────────────── */
 @media(max-width:700px){
-  /* Nav — hide FY label, shrink brand, compress links */
-  .nav-brand{font-size:12px;margin-right:.75rem}
+  /* Nav — 2 rows: brand on top, links below */
+  nav{height:auto;flex-wrap:wrap;padding:.5rem 1rem;gap:0}
+  .nav-brand{width:100%;font-size:13px;margin-right:0;padding:.25rem 0}
+  .nav-links{width:100%;flex-wrap:wrap;border-top:1px solid var(--border2);padding-top:.25rem}
+  .nav-link{font-size:11px;padding:4px .6rem;height:32px;letter-spacing:.02em}
   .nav-fy{display:none}
-  .nav-link{font-size:10px;padding:0 .5rem;letter-spacing:.03em}
 
   /* Hero */
   .hero{padding:2rem 1rem 1.5rem}
-  .hero h1{font-size:26px}
-  .hero-sub{font-size:13px;margin-bottom:1.25rem}
+  .hero h1{font-size:24px}
+  .hero-sub{font-size:13px;margin-bottom:1rem}
   .hero-stats{max-width:100%;grid-template-columns:repeat(2,1fr)}
   .hero-stat .value{font-size:18px}
+  .hero-stat .label{font-size:10px}
 
   /* Sections */
   .section{padding:1.5rem 1rem}
   .section-title{font-size:20px}
 
-  /* Overview cards — single column */
+  /* All side-by-side layouts go single column */
+  .two-col{grid-template-columns:1fr !important}
   .section > div[style*="grid"]{grid-template-columns:1fr !important}
 
-  /* Met row — 2 cols on mobile */
+  /* Met row — 2 cols */
   .met-row{grid-template-columns:repeat(2,1fr)}
   .met-card .mv{font-size:15px}
 
@@ -142,15 +146,15 @@ footer p{font-size:12px;color:var(--text3)}
   .card{padding:.85rem .9rem}
 
   /* Chart canvases — shorter on mobile */
-  #expPieC, #revPieC{height:200px !important}
-  #expTrendC, #revTrendC, #defC{height:200px !important}
+  #expPieC,#revPieC{height:220px !important}
+  #expTrendC,#revTrendC,#defC{height:200px !important}
 
-  /* Tab rows — allow wrap, smaller text */
-  .tab-row{gap:4px}
+  /* Tab rows */
+  .tab-row{gap:4px;flex-wrap:wrap}
   .tb{font-size:10px;padding:2px 7px}
   .reset-btn{font-size:10px;padding:2px 8px}
 
-  /* Legend items — tighter */
+  /* Legend */
   .li{padding:4px 5px}
   .ln{font-size:11px}
   .lv,.lp{font-size:10px}
@@ -161,10 +165,10 @@ footer p{font-size:12px;color:var(--text3)}
   .who-label{font-size:10px}
   .who-val,.who-rate{font-size:9px}
 
-  /* Deficit legend wraps nicely */
+  /* Deficit legend */
   .def-legend{gap:8px;font-size:10px}
 
-  /* Modal — full width on mobile */
+  /* Modal */
   .modal{padding:1rem;border-radius:8px}
   .modal h2{font-size:15px}
   .modal .mmets{grid-template-columns:repeat(3,1fr)}
@@ -187,11 +191,9 @@ footer p{font-size:12px;color:var(--text3)}
 }
 
 @media(max-width:400px){
-  /* Very small phones — extra compression */
-  .nav-link{font-size:9px;padding:0 .35rem}
-  .nav-brand{font-size:11px}
-  .hero h1{font-size:22px}
-  .met-row{grid-template-columns:1fr 1fr}
+  .nav-link{font-size:10px;padding:4px .4rem}
+  .nav-brand{font-size:12px}
+  .hero h1{font-size:20px}
   .met-card .mv{font-size:14px}
   .hero-stats{grid-template-columns:1fr 1fr}
 }
@@ -216,6 +218,10 @@ footer p{font-size:12px;color:var(--text3)}
     <div class="hero-eyebrow">Fiscal Year 2025 · United States Federal Government</div>
     <h1>Where does the money<br><em>come from</em> — and where does it <em>go?</em></h1>
     <p class="hero-sub">An interactive guide to the U.S. federal budget. Drill down into spending categories, revenue sources, and the deficit — with historical data back to 1962 and CBO projections to 2036.</p>
+    <div style="display:inline-flex;align-items:center;gap:8px;background:var(--navy3);border:1px solid var(--amber);border-radius:6px;padding:8px 14px;margin-bottom:2rem;font-size:12px;color:var(--amber)">
+      <span style="font-size:16px">🖥️</span>
+      <span>Best viewed on a wide screen — we have a lot of data to interact with.</span>
+    </div>
     <div class="hero-stats">
       <div class="hero-stat"><div class="label">Total Outlays</div><div class="value red">$7.0T</div><div class="sub">23.3% of GDP</div></div>
       <div class="hero-stat"><div class="label">Total Revenue</div><div class="value green">$5.2T</div><div class="sub">17.3% of GDP</div></div>

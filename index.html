@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>U.S. 2025 Federal Budget Explorer</title>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+:root{--navy:#0a0f1e;--navy2:#111827;--navy3:#1a2335;--navy4:#243044;--border:#2a3a52;--border2:#1e2e42;--text:#e8ecf2;--text2:#8fa4be;--text3:#4d6480;--accent:#4a9eff;--green:#1fba82;--red:#e8503a;--amber:#d4973a;--purple:#7f77dd;--serif:'Libre Baskerville',Georgia,serif;--sans:'IBM Plex Sans',sans-serif;--mono:'IBM Plex Mono',monospace;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--navy);color:var(--text);min-height:100vh;font-size:14px;line-height:1.6}
+nav{position:sticky;top:0;z-index:100;background:rgba(10,15,30,0.95);backdrop-filter:blur(12px);border-bottom:1px solid var(--border2);padding:0 2rem;display:flex;align-items:center;height:52px}
+.nav-brand{font-family:var(--serif);font-size:14px;color:var(--text);margin-right:2rem;white-space:nowrap}
+.nav-brand span{color:var(--accent)}
+.nav-links{display:flex;flex:1}
+.nav-link{font-size:12px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);padding:0 1rem;height:52px;display:flex;align-items:center;cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;text-decoration:none}
+.nav-link:hover{color:var(--text2)}
+.nav-link.active{color:var(--accent);border-bottom-color:var(--accent)}
+.nav-fy{font-family:var(--mono);font-size:11px;color:var(--text3);margin-left:auto;white-space:nowrap}
+.hero{padding:4rem 2rem 3rem;max-width:1100px;margin:0 auto;border-bottom:1px solid var(--border2)}
+.hero-eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:.75rem}
+.hero h1{font-family:var(--serif);font-size:clamp(28px,5vw,46px);font-weight:700;line-height:1.15;margin-bottom:1rem}
+.hero h1 em{font-style:italic;color:var(--accent)}
+.hero-sub{font-size:15px;color:var(--text2);max-width:640px;line-height:1.7;margin-bottom:2rem}
+.hero-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1px;background:var(--border2);border:1px solid var(--border2);border-radius:8px;overflow:hidden;max-width:700px}
+.hero-stat{background:var(--navy2);padding:1rem 1.25rem}
+.hero-stat .label{font-size:11px;color:var(--text3);font-family:var(--mono);letter-spacing:.04em;margin-bottom:.25rem}
+.hero-stat .value{font-size:22px;font-weight:600;font-family:var(--mono)}
+.hero-stat .sub{font-size:11px;color:var(--text3);margin-top:2px}
+.value.red{color:var(--red)}.value.green{color:var(--green)}.value.amber{color:var(--amber)}.value.blue{color:var(--accent)}
+.section{padding:3rem 2rem;max-width:1100px;margin:0 auto}
+.section+.section{border-top:1px solid var(--border2)}
+.section-header{margin-bottom:1.75rem}
+.section-num{font-family:var(--mono);font-size:11px;color:var(--accent);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.4rem}
+.section-title{font-family:var(--serif);font-size:24px;font-weight:700;margin-bottom:.4rem}
+.section-desc{font-size:13px;color:var(--text2);max-width:700px;line-height:1.6}
+.card{background:var(--navy2);border:1px solid var(--border);border-radius:10px;padding:1.25rem 1.5rem}
+.card-label{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text3);margin-bottom:.6rem}
+.met-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-bottom:1.25rem}
+.met-card{background:var(--navy3);border:1px solid var(--border2);border-radius:8px;padding:10px 14px}
+.met-card .ml{font-size:10px;color:var(--text3);font-family:var(--mono);margin-bottom:4px}
+.met-card .mv{font-size:18px;font-weight:600;font-family:var(--mono);color:var(--text)}
+.met-card .mv.proj{color:var(--amber)}
+.met-card .ms{font-size:10px;color:var(--text3);margin-top:2px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;align-items:start}
+.tab-row{display:flex;gap:5px;margin-bottom:.75rem;flex-wrap:wrap}
+.tb{font-size:11px;padding:3px 10px;border:1px solid var(--border);border-radius:20px;cursor:pointer;background:transparent;color:var(--text2);font-family:var(--sans);transition:all .15s}
+.tb:hover{border-color:var(--text3);color:var(--text)}
+.tb.act{background:var(--text);color:var(--navy);border-color:var(--text)}
+.tb.proj-btn{border-color:var(--amber);color:var(--amber)}
+.tb.proj-btn.act{background:var(--amber);color:var(--navy)}
+.tb.who-btn{border-color:var(--purple);color:var(--purple)}
+.tb.who-btn.act{background:var(--purple);color:#fff}
+.reset-btn{display:inline-flex;align-items:center;gap:5px;font-size:11px;padding:3px 10px;border:1px solid var(--border);border-radius:20px;cursor:pointer;background:var(--navy3);color:var(--text2);font-family:var(--sans);transition:all .15s;margin-bottom:.75rem}
+.reset-btn:hover{border-color:var(--accent);color:var(--accent)}
+.bc{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text3);margin-bottom:.5rem;flex-wrap:wrap}
+.bc .bci{cursor:pointer;color:var(--accent)}.bc .bci:hover{text-decoration:underline}
+.bc .sep{color:var(--text3)}.bc .cur{font-weight:500;color:var(--text)}
+.leg{margin-top:.6rem;display:flex;flex-direction:column;gap:2px}
+.li{display:flex;align-items:center;gap:7px;cursor:pointer;padding:5px 7px;border-radius:6px;transition:background .12s}
+.li:hover{background:var(--navy3)}
+.sw{width:9px;height:9px;border-radius:2px;flex-shrink:0}
+.ln{font-size:12px;color:var(--text);flex:1}
+.lv{font-size:11px;color:var(--text2)}
+.lp{font-size:11px;color:var(--text3);min-width:34px;text-align:right}
+.larr{font-size:10px;color:var(--text3);margin-left:2px}
+.tip{position:absolute;background:var(--navy2);border:1px solid var(--border);border-radius:8px;padding:9px 11px;font-size:11px;pointer-events:none;z-index:50;max-width:210px;box-shadow:0 4px 20px rgba(0,0,0,.4)}
+.tip .tn{font-weight:600;color:var(--text);margin-bottom:2px}
+.tip .tv{color:var(--text2)}
+.tip .td{color:var(--text2);margin-top:4px;font-size:10px;line-height:1.5;border-top:1px solid var(--border2);padding-top:4px}
+.tip .th{color:var(--accent);margin-top:3px;font-size:10px}
+.pnote{font-size:10px;color:var(--amber);margin-top:5px;display:none}
+.pnote.show{display:block}
+.who-row{display:grid;grid-template-columns:95px 1fr 46px 46px;gap:6px;align-items:center;padding:4px 0;border-bottom:1px solid var(--border2)}
+.who-row:last-child{border-bottom:none}
+.who-hdr{display:grid;grid-template-columns:95px 1fr 46px 46px;gap:6px;padding-bottom:5px;border-bottom:1px solid var(--border)}
+.who-hdr span{font-size:10px;color:var(--text3);font-family:var(--mono)}
+.who-label{font-size:11px;color:var(--text)}
+.who-bar-wrap{position:relative;height:14px;background:var(--navy3);border-radius:3px;overflow:hidden}
+.who-bar{height:100%;border-radius:3px;transition:width .4s}
+.who-val{font-size:10px;color:var(--text2);text-align:right;font-family:var(--mono)}
+.who-rate{font-size:10px;color:var(--text3);text-align:right;font-family:var(--mono)}
+.wt{font-size:10px;padding:2px 8px;border:1px solid var(--border);border-radius:20px;cursor:pointer;background:transparent;color:var(--text2);font-family:var(--sans)}
+.wt.act{background:var(--navy4);color:var(--text);border-color:var(--text3)}
+.src-note{font-size:10px;color:var(--text3);margin-top:.4rem;line-height:1.5}
+.ty-tag{font-size:10px;font-weight:600;color:var(--red);font-family:var(--mono);margin-left:4px}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.65);display:flex;align-items:center;justify-content:center;z-index:200}
+.modal{background:var(--navy2);border:1px solid var(--border);border-radius:12px;padding:1.5rem;width:min(620px,95vw);max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.modal h2{font-family:var(--serif);font-size:18px;margin-bottom:.2rem}
+.modal .msub{font-size:12px;color:var(--text2);margin-bottom:.75rem}
+.modal .mdef{font-size:12px;color:var(--text2);line-height:1.65;margin-bottom:.75rem;padding:.6rem .75rem;background:var(--navy3);border-radius:6px;border-left:2px solid var(--accent)}
+.modal .mmets{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:.75rem}
+.modal .mclose{float:right;cursor:pointer;font-size:14px;color:var(--text2);background:none;border:none;font-family:var(--sans);padding:0}
+.modal .mclose:hover{color:var(--text)}
+.def-legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:.5rem;font-size:11px;color:var(--text2)}
+.def-legend span{display:flex;align-items:center;gap:4px}
+footer{border-top:1px solid var(--border2);padding:2rem;max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem}
+footer p{font-size:12px;color:var(--text3)}
+.sources-link{display:inline-flex;align-items:center;gap:6px;background:var(--navy3);border:1px solid var(--border);border-radius:6px;padding:6px 14px;font-size:12px;font-weight:500;color:var(--accent);cursor:pointer;transition:all .15s;text-decoration:none}
+.sources-link:hover{background:var(--navy4);border-color:var(--accent)}
+.sources-hero{padding:3rem 2rem 2rem;max-width:1100px;margin:0 auto;border-bottom:1px solid var(--border2)}
+.sources-hero h1{font-family:var(--serif);font-size:32px;margin-bottom:.5rem}
+.sources-hero p{font-size:14px;color:var(--text2)}
+.source-group{margin-bottom:2rem}
+.source-group h3{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:.75rem;padding-bottom:.4rem;border-bottom:1px solid var(--border2)}
+.source-item{padding:.6rem 0;border-bottom:1px solid var(--border2)}
+.source-item:last-child{border-bottom:none}
+.source-item .sname{font-size:13px;font-weight:500;color:var(--text);margin-bottom:2px}
+.source-item .sdesc{font-size:12px;color:var(--text2);line-height:1.6}
+.source-item .surl{font-size:11px;font-family:var(--mono);color:var(--accent);margin-top:2px}
+.back-btn{display:inline-flex;align-items:center;gap:6px;background:var(--navy3);border:1px solid var(--border);border-radius:6px;padding:6px 14px;font-size:12px;font-weight:500;color:var(--text2);cursor:pointer;transition:all .15s;margin-bottom:1.5rem}
+.back-btn:hover{color:var(--text)}
+
+/* ── MOBILE ─────────────────────────────────────────────────── */
+@media(max-width:700px){
+  /* Nav — hide FY label, shrink brand, compress links */
+  .nav-brand{font-size:12px;margin-right:.75rem}
+  .nav-fy{display:none}
+  .nav-link{font-size:10px;padding:0 .5rem;letter-spacing:.03em}
+
+  /* Hero */
+  .hero{padding:2rem 1rem 1.5rem}
+  .hero h1{font-size:26px}
+  .hero-sub{font-size:13px;margin-bottom:1.25rem}
+  .hero-stats{max-width:100%;grid-template-columns:repeat(2,1fr)}
+  .hero-stat .value{font-size:18px}
+
+  /* Sections */
+  .section{padding:1.5rem 1rem}
+  .section-title{font-size:20px}
+
+  /* Overview cards — single column */
+  .section > div[style*="grid"]{grid-template-columns:1fr !important}
+
+  /* Met row — 2 cols on mobile */
+  .met-row{grid-template-columns:repeat(2,1fr)}
+  .met-card .mv{font-size:15px}
+
+  /* Chart cards */
+  .card{padding:.85rem .9rem}
+
+  /* Chart canvases — shorter on mobile */
+  #expPieC, #revPieC{height:200px !important}
+  #expTrendC, #revTrendC, #defC{height:200px !important}
+
+  /* Tab rows — allow wrap, smaller text */
+  .tab-row{gap:4px}
+  .tb{font-size:10px;padding:2px 7px}
+  .reset-btn{font-size:10px;padding:2px 8px}
+
+  /* Legend items — tighter */
+  .li{padding:4px 5px}
+  .ln{font-size:11px}
+  .lv,.lp{font-size:10px}
+
+  /* Who-pays panel */
+  .who-row{grid-template-columns:80px 1fr 38px 38px;gap:4px}
+  .who-hdr{grid-template-columns:80px 1fr 38px 38px;gap:4px}
+  .who-label{font-size:10px}
+  .who-val,.who-rate{font-size:9px}
+
+  /* Deficit legend wraps nicely */
+  .def-legend{gap:8px;font-size:10px}
+
+  /* Modal — full width on mobile */
+  .modal{padding:1rem;border-radius:8px}
+  .modal h2{font-size:15px}
+  .modal .mmets{grid-template-columns:repeat(3,1fr)}
+
+  /* Sources */
+  .sources-hero{padding:1.5rem 1rem 1rem}
+  .sources-hero h1{font-size:22px}
+  .source-item .sname{font-size:12px}
+  .source-item .sdesc{font-size:11px}
+
+  /* Footer */
+  footer{padding:1.25rem 1rem;flex-direction:column;align-items:flex-start}
+
+  /* Revenue deficit bar */
+  #rev-dbar{flex-direction:column;gap:6px;align-items:flex-start}
+  #rev-dbar > div:last-child{margin-left:0 !important}
+
+  /* Breadcrumb */
+  .bc{font-size:11px}
+}
+
+@media(max-width:400px){
+  /* Very small phones — extra compression */
+  .nav-link{font-size:9px;padding:0 .35rem}
+  .nav-brand{font-size:11px}
+  .hero h1{font-size:22px}
+  .met-row{grid-template-columns:1fr 1fr}
+  .met-card .mv{font-size:14px}
+  .hero-stats{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+<nav>
+  <div class="nav-brand">U.S. 2025 Federal Budget <span>Explorer</span></div>
+  <div class="nav-links">
+    <a class="nav-link active" onclick="showPage('main')" href="#">Overview</a>
+    <a class="nav-link" onclick="showPage('spending')" href="#">Spending</a>
+    <a class="nav-link" onclick="showPage('revenue')" href="#">Revenue</a>
+    <a class="nav-link" onclick="showPage('deficit')" href="#">Deficit</a>
+    <a class="nav-link" onclick="showPage('sources')" href="#">Sources</a>
+  </div>
+  <div class="nav-fy">FY2025 Actuals · CBO Feb 2026</div>
+</nav>
+
+<!-- MAIN PAGE -->
+<div id="page-main">
+  <div class="hero">
+    <div class="hero-eyebrow">Fiscal Year 2025 · United States Federal Government</div>
+    <h1>Where does the money<br><em>come from</em> — and where does it <em>go?</em></h1>
+    <p class="hero-sub">An interactive guide to the U.S. federal budget. Drill down into spending categories, revenue sources, and the deficit — with historical data back to 1962 and CBO projections to 2036.</p>
+    <div class="hero-stats">
+      <div class="hero-stat"><div class="label">Total Outlays</div><div class="value red">$7.0T</div><div class="sub">23.3% of GDP</div></div>
+      <div class="hero-stat"><div class="label">Total Revenue</div><div class="value green">$5.2T</div><div class="sub">17.3% of GDP</div></div>
+      <div class="hero-stat"><div class="label">Deficit</div><div class="value red">−$1.8T</div><div class="sub">5.9% of GDP</div></div>
+      <div class="hero-stat"><div class="label">National Debt</div><div class="value amber">$37.1T</div><div class="sub">123% of GDP</div></div>
+    </div>
+  </div>
+  <div class="section">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem">
+      <div class="card" style="cursor:pointer" onclick="showPage('spending')"><div class="card-label">01 — Spending</div><div style="font-family:var(--serif);font-size:20px;margin-bottom:.4rem">$7.0T in outlays</div><div style="font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:1rem">Mandatory programs (Social Security, Medicare, Medicaid) now consume 60% of all spending. Net interest approaches $1T. Drill into every subcategory with full historical trends.</div><div style="font-size:12px;color:var(--accent)">Explore spending →</div></div>
+      <div class="card" style="cursor:pointer" onclick="showPage('revenue')"><div class="card-label">02 — Revenue</div><div style="font-family:var(--serif);font-size:20px;margin-bottom:.4rem">$5.2T in receipts</div><div style="font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:1rem">Individual income taxes ($2.7T) dominate. Tariffs surged 153% to $195B in FY2025. Includes "Who Pays?" distribution data by income group.</div><div style="font-size:12px;color:var(--accent)">Explore revenue →</div></div>
+      <div class="card" style="cursor:pointer" onclick="showPage('deficit')"><div class="card-label">03 — Deficit &amp; Debt</div><div style="font-family:var(--serif);font-size:20px;margin-bottom:.4rem">−$1.8T deficit</div><div style="font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:1rem">The 5.9% of GDP deficit is well above the 50-year average of 3.8%. CBO projects deficits widening to 6.7% of GDP by 2036.</div><div style="font-size:12px;color:var(--accent)">Explore deficit →</div></div>
+    </div>
+  </div>
+  <div style="max-width:1100px;margin:0 auto;padding:0 2rem 3rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem">
+    <p style="font-size:12px;color:var(--text3)">Data: OMB Historical Tables · CBO Budget Outlook Feb 2026 · IRS Statistics of Income TY2023</p>
+    <a class="sources-link" onclick="showPage('sources')" href="#">📄 View all data sources</a>
+  </div>
+</div>
+
+<!-- SPENDING PAGE -->
+<div id="page-spending" style="display:none">
+<div class="section">
+  <div class="section-header">
+    <div class="section-num">01 — Spending</div>
+    <div class="section-title">Federal Expenditures</div>
+    <div class="section-desc">FY2025 actuals · $7.0T total outlays · Click any slice or row to drill down · Click leaf items for full history</div>
+  </div>
+  <button class="reset-btn" onclick="expReset()">⌂ Reset to top level</button>
+  <div id="exp-bc" class="bc"></div>
+  <div id="exp-mets" class="met-row"></div>
+  <div class="two-col">
+    <div class="card" style="position:relative">
+      <div class="card-label" id="exp-pie-ttl">Spending breakdown</div>
+      <div style="position:relative;width:100%;height:260px"><canvas id="expPieC"></canvas><div id="exp-tip" class="tip" style="display:none"></div></div>
+      <div id="exp-leg" class="leg"></div>
+    </div>
+    <div class="card">
+      <div class="card-label" id="exp-trend-ttl">Over time</div>
+      <div class="tab-row">
+        <button class="tb act" onclick="expSetMode('nominal',this)">Nominal $B</button>
+        <button class="tb" onclick="expSetMode('pct_gdp',this)">% of GDP</button>
+        <button class="tb proj-btn" onclick="expToggleProj(this)">+ Projections</button>
+      </div>
+      <div style="position:relative;width:100%;height:260px"><canvas id="expTrendC"></canvas></div>
+      <div id="exp-pnote" class="pnote">Dashed = CBO baseline 2026–2035 (Feb 2026)</div>
+    </div>
+  </div>
+</div>
+<div id="exp-modal"></div>
+</div>
+
+<!-- REVENUE PAGE -->
+<div id="page-revenue" style="display:none">
+<div class="section">
+  <div class="section-header">
+    <div class="section-num">02 — Revenue</div>
+    <div class="section-title">Federal Receipts</div>
+    <div class="section-desc">FY2025 actuals · $5.2T total receipts · Toggle/Click <strong>"Who pays?"</strong> panels for individual income, payroll, and corporate taxes</div>
+  </div>
+  <div id="rev-dbar" style="background:var(--navy3);border:1px solid var(--border2);border-radius:8px;padding:10px 16px;margin-bottom:1rem;display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+    <div><div style="font-size:11px;color:var(--text3)">FY2025 Revenue</div><div style="font-size:15px;font-weight:600;color:var(--green);font-family:var(--mono)">$5.2T</div></div>
+    <div style="font-size:18px;color:var(--text3)">vs</div>
+    <div><div style="font-size:11px;color:var(--text3)">FY2025 Outlays</div><div style="font-size:15px;font-weight:600;color:var(--red);font-family:var(--mono)">$7.0T</div></div>
+    <div style="font-size:18px;color:var(--text3)">→</div>
+    <div><div style="font-size:11px;color:var(--text3)">Deficit</div><div style="font-size:15px;font-weight:600;color:var(--red);font-family:var(--mono)">−$1.8T (5.9% GDP)</div></div>
+    <div style="font-size:10px;color:var(--text3);margin-left:auto">50-yr avg deficit: ~3.8% GDP</div>
+  </div>
+  <button class="reset-btn" onclick="revReset()">⌂ Reset to top level</button>
+  <div id="rev-bc" class="bc"></div>
+  <div id="rev-mets" class="met-row"></div>
+  <div class="two-col">
+    <div class="card" style="position:relative">
+      <div class="card-label" id="rev-pie-ttl">Revenue by source</div>
+      <div style="position:relative;width:100%;height:260px"><canvas id="revPieC"></canvas><div id="rev-tip" class="tip" style="display:none"></div></div>
+      <div id="rev-leg" class="leg"></div>
+    </div>
+    <div class="card">
+      <div class="card-label" id="rev-right-ttl">Over time</div>
+      <div class="tab-row" id="rev-tabs">
+        <button class="tb act" onclick="revSetMode('nominal',this)">Nominal $B</button>
+        <button class="tb" onclick="revSetMode('pct_gdp',this)">% of GDP</button>
+        <button class="tb proj-btn" onclick="revToggleProj(this)">+ Projections</button>
+        <button class="tb who-btn" id="rev-who-btn" style="display:none" onclick="revToggleWho(this)">Who pays?</button>
+      </div>
+      <div id="rev-trend-wrap" style="position:relative;width:100%;height:260px"><canvas id="revTrendC"></canvas></div>
+      <div id="rev-who-wrap" style="display:none"></div>
+      <div id="rev-pnote" class="pnote">Dashed = CBO baseline 2026–2035 (Feb 2026)</div>
+    </div>
+  </div>
+</div>
+<div id="rev-modal"></div>
+</div>
+
+<!-- DEFICIT PAGE -->
+<div id="page-deficit" style="display:none">
+<div class="section">
+  <div class="section-header">
+    <div class="section-num">03 — Deficit &amp; Debt</div>
+    <div class="section-title">Federal Deficit / Surplus</div>
+    <div class="section-desc">1962–2025 actuals · Green = surplus · Red = deficit · Right axis: real GDP growth % (inflation-adjusted, BEA) · CBO projections to 2036</div>
+  </div>
+  <div class="met-row">
+    <div class="met-card"><div class="ml">FY2025 Deficit</div><div class="mv" style="color:var(--red)">−$1.8T</div><div class="ms">5.9% of GDP</div></div>
+    <div class="met-card"><div class="ml">50-Year Average</div><div class="mv" style="color:var(--amber)">−3.8% GDP</div><div class="ms">1975–2025</div></div>
+    <div class="met-card"><div class="ml">Last Surplus</div><div class="mv" style="color:var(--green)">+$128B</div><div class="ms">FY2001 · +1.2% GDP</div></div>
+    <div class="met-card"><div class="ml">CBO 2036 Proj.</div><div class="mv proj">−$3.1T</div><div class="ms">6.7% of GDP</div></div>
+  </div>
+  <div class="tab-row">
+    <button id="def-btn-nom" onclick="defSetV('nom')" style="font-size:11px;padding:3px 10px;border:1px solid var(--text);border-radius:20px;cursor:pointer;font-family:var(--sans);background:var(--text);color:var(--navy)">Nominal $B</button>
+    <button id="def-btn-pct" onclick="defSetV('pct')" style="font-size:11px;padding:3px 10px;border:1px solid var(--border);border-radius:20px;cursor:pointer;font-family:var(--sans);background:transparent;color:var(--text2)">% of GDP</button>
+    <button id="def-btn-proj" onclick="defToggleP()" style="font-size:11px;padding:3px 10px;border:1px solid var(--amber);border-radius:20px;cursor:pointer;font-family:var(--sans);background:transparent;color:var(--amber)">+ Projections</button>
+  </div>
+  <div style="margin-top:.75rem">
+    <div style="position:relative;width:100%;height:340px"><canvas id="defC"></canvas></div>
+  </div>
+  <div class="def-legend">
+    <span><span style="width:10px;height:10px;border-radius:2px;background:var(--red);display:inline-block"></span>Deficit</span>
+    <span><span style="width:10px;height:10px;border-radius:2px;background:var(--green);display:inline-block"></span>Surplus</span>
+    <span><span style="width:10px;height:10px;border-radius:2px;background:#d4973a88;display:inline-block"></span>CBO projection</span>
+    <span id="def-avg-legend" style="display:none;align-items:center;gap:4px"><span style="width:20px;height:2px;background:var(--text3);display:inline-block"></span>50-yr avg −3.8%</span>
+    <span style="display:flex;align-items:center;gap:4px"><span style="width:20px;height:2px;background:#7f77dd;display:inline-block"></span>Real GDP growth % — inflation-adjusted (right axis)</span>
+  </div>
+  <div style="font-size:10px;color:var(--text3);margin-top:.4rem"><strong style="color:var(--text2)">Real GDP growth</strong> = nominal GDP growth minus inflation (BEA, chained 2017 dollars) — removes the inflation illusion: e.g. Carter-era nominal growth of ~10%/yr was largely inflation, with real growth of only 2–4%.</div>
+</div>
+</div>
+
+<!-- SOURCES PAGE -->
+<div id="page-sources" style="display:none">
+<div class="sources-hero">
+  <button class="back-btn" onclick="showPage('main')">← Back to overview</button>
+  <div style="font-family:var(--mono);font-size:11px;color:var(--accent);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.5rem">Data provenance</div>
+  <h1>Data Sources</h1>
+  <p>All data used in the U.S. 2025 Federal Budget Explorer — primary government sources only.</p>
+</div>
+<div class="section">
+  <div class="source-group">
+    <h3>Budget Totals &amp; Historical Spending</h3>
+    <div class="source-item"><div class="sname">OMB Historical Tables — Table 1.1: Summary of Receipts, Outlays, and Surpluses or Deficits</div><div class="sdesc">Primary source for all annual totals. Used for total outlays, revenues, and deficit/surplus by fiscal year (1962–2025).</div><div class="surl">whitehouse.gov/omb/budget/historical-tables</div></div>
+    <div class="source-item"><div class="sname">OMB Historical Tables — Table 3.2: Outlays by Function and Subfunction</div><div class="sdesc">Spending by major category (defense, Social Security, Medicare, Income Security, Federal Retirement, etc.) going back to 1962.</div><div class="surl">whitehouse.gov/omb/budget/historical-tables</div></div>
+    <div class="source-item"><div class="sname">OMB Historical Tables — Table 4.1: Outlays by Agency</div><div class="sdesc">Agency-level historical spending (VA, HHS, DoEd, DoT, DHS) going back to 1962.</div><div class="surl">whitehouse.gov/omb/budget/historical-tables</div></div>
+    <div class="source-item"><div class="sname">OMB Historical Tables — Table 7.1: Federal Debt at End of Year</div><div class="sdesc">Total federal debt outstanding 1940–2025. Used for the debt overlay on the Net Interest trend chart.</div><div class="surl">whitehouse.gov/omb/budget/historical-tables</div></div>
+  </div>
+  <div class="source-group">
+    <h3>Budget Projections</h3>
+    <div class="source-item"><div class="sname">CBO Budget &amp; Economic Outlook, February 2026</div><div class="sdesc">Primary source for all 10-year projections (2026–2036). Incorporates effects of the One Big Beautiful Bill Act (OBBB, July 2025).</div><div class="surl">cbo.gov/publication/budget-economic-outlook</div></div>
+    <div class="source-item"><div class="sname">CBO Long-Term Budget Outlook</div><div class="sdesc">Longer-horizon % of GDP projections and structural deficit analysis.</div><div class="surl">cbo.gov/topics/budget/long-term-budget-projections</div></div>
+  </div>
+  <div class="source-group">
+    <h3>Revenue &amp; Tax Distribution</h3>
+    <div class="source-item"><div class="sname">OMB Historical Tables — Tables 2.1–2.5: Receipts by Source</div><div class="sdesc">Federal revenue by type (individual income, payroll, corporate, excise, tariffs) going back to 1934.</div><div class="surl">whitehouse.gov/omb/budget/historical-tables</div></div>
+    <div class="source-item"><div class="sname">IRS Statistics of Income (SOI) — Tax Year 2023 <span style="color:var(--red);font-weight:600">[TY2023 — most recent available]</span></div><div class="sdesc">Individual income tax distribution by percentile: share of AGI, share of taxes paid, effective rates. Typically 2 years behind the current fiscal year. Used for "Who Pays?" panels.</div><div class="surl">irs.gov/statistics/soi-tax-stats-individual-income-tax-returns</div></div>
+    <div class="source-item"><div class="sname">CBO Distribution of Federal Taxes, 2022</div><div class="sdesc">Payroll tax incidence by income quintile including effective rates. Used for "Who Pays?" payroll panel.</div><div class="surl">cbo.gov/publication/distribution-household-income</div></div>
+    <div class="source-item"><div class="sname">IRS SOI Publication 16 — Corporation Income Tax Returns, Tax Year 2022</div><div class="sdesc">Corporate income tax liability by industry sector. Scaled to FY2025 actuals.</div><div class="surl">irs.gov/statistics/soi-tax-stats-corporation-tax-statistics</div></div>
+  </div>
+  <div class="source-group">
+    <h3>Program-Specific Sources</h3>
+    <div class="source-item"><div class="sname">CMS National Health Expenditure Accounts</div><div class="sdesc">Medicare and Medicaid historical spending detail (Parts A, B, C, D and Medicaid subcomponents).</div><div class="surl">cms.gov/data-research/statistics-trends-and-reports/national-health-expenditure-data</div></div>
+    <div class="source-item"><div class="sname">NIH Office of Budget</div><div class="sdesc">NIH annual appropriations history (1980–2025) and FY2026 proposed budget.</div><div class="surl">officeofbudget.od.nih.gov</div></div>
+    <div class="source-item"><div class="sname">CDC Budget Justifications to Congress</div><div class="sdesc">CDC annual discretionary appropriations history (1980–2025).</div><div class="surl">cdc.gov/budget</div></div>
+    <div class="source-item"><div class="sname">DoD Comptroller Historical Budget Data</div><div class="sdesc">Defense spending by title (Personnel, O&amp;M, Procurement, RDT&amp;E) from 1980.</div><div class="surl">comptroller.defense.gov/Budget-Materials</div></div>
+    <div class="source-item"><div class="sname">VA Budget Submission to Congress</div><div class="sdesc">Veterans Affairs discretionary and mandatory spending history.</div><div class="surl">va.gov/budget/products.asp</div></div>
+  </div>
+  <div class="source-group">
+    <h3>GDP &amp; Economic Data</h3>
+    <div class="source-item"><div class="sname">BEA National Income and Product Accounts (NIPA) — Table 1.1.5</div><div class="sdesc">Nominal GDP 1934–2025 used for all % of GDP calculations. Projected GDP 2026–2036 from CBO economic assumptions (Feb 2026).</div><div class="surl">bea.gov/data/gdp/gross-domestic-product</div></div>
+    <div class="source-item"><div class="sname">U.S. Treasury Fiscal Data — Historical Debt Outstanding</div><div class="sdesc">Total federal debt outstanding by fiscal year end, 1789–2025.</div><div class="surl">fiscaldata.treasury.gov/datasets/historical-debt-outstanding</div></div>
+  </div>
+  <div class="source-group">
+    <h3>Notes on Data</h3>
+    <div class="source-item"><div class="sname">Payroll Tax Coverage</div><div class="sdesc">All payroll tax figures include both the employee and employer share of FICA contributions (Social Security: 6.2% each = 12.4% combined; Medicare: 1.45% each = 2.9% combined). Employers remit both shares to the IRS.</div></div>
+    <div class="source-item"><div class="sname">Fiscal Year Convention</div><div class="sdesc">The U.S. federal fiscal year runs October 1 – September 30. A new president inherits ~9 months of the prior administration's budget framework in their first year.</div></div>
+    <div class="source-item"><div class="sname">Projection Methodology</div><div class="sdesc">All projections use CBO's February 2026 baseline, incorporating enacted legislation including the One Big Beautiful Bill Act (signed July 2025). Projections are baselines, not forecasts.</div></div>
+    <div class="source-item"><div class="sname">Rounding</div><div class="sdesc">All figures rounded to nearest billion dollars. Subtotals may not add to totals due to rounding.</div></div>
+  </div>
+</div>
+</div>
+
+<footer>
+  <p>U.S. 2025 Federal Budget Explorer · Data: OMB, CBO, IRS SOI, BEA, Treasury · Not affiliated with any government agency</p>
+  <a class="sources-link" onclick="showPage('sources')" href="#">📄 Data sources &amp; methodology</a>
+</footer>
+
+<script>
+// ── SHARED ──────────────────────────────────────────────────────────────────
+const GDP_H={1934:68,1940:103,1944:224,1950:300,1955:415,1960:543,1962:632,1963:665,1964:715,1965:779,1966:865,1967:933,1968:1028,1969:1109,1970:1136,1971:1225,1972:1360,1973:1528,1974:1655,1975:1789,1976:1998,1977:2250,1978:2565,1979:2868,1980:3161,1981:3527,1982:3677,1983:3970,1984:4412,1985:4742,1986:5035,1987:5361,1988:5745,1989:6200,1990:6546,1991:6724,1992:7101,1993:7517,1994:7997,1995:8374,1996:8870,1997:9433,1998:10002,1999:10664,2000:11226,2001:11596,2002:11991,2003:12649,2004:13551,2005:14476,2006:15379,2007:15818,2008:15961,2009:15535,2010:16090,2011:16637,2012:17180,2013:17675,2014:18504,2015:19221,2016:19741,2017:20612,2018:21927,2019:22975,2020:21060,2021:23315,2022:25744,2023:27360,2024:28781,2025:30000};
+const GDP_P={2026:31500,2027:33000,2028:34500,2029:36000,2030:37500,2031:39000,2032:40600,2033:42200,2034:43900,2035:45700,2036:47400};
+const getGDP=y=>GDP_H[y]||GDP_P[y]||30000;
+const fmtB=v=>{if(Math.abs(v)<1)return'$'+v.toFixed(1)+'B';if(v<0)return'-$'+Math.round(Math.abs(v))+'B';if(v>=1000)return'$'+(v/1000).toFixed(1)+'T';return'$'+Math.round(v)+'B'};
+const fmtP=(v,t)=>(Math.max(0,v)/Math.abs(t)*100).toFixed(1)+'%';
+const EC=['#4a9eff','#1fba82','#d4973a','#e8503a','#d4537e','#639922','#7f77dd','#888780','#0f6e56'];
+const RC=['#4a9eff','#1fba82','#d4973a','#e8503a','#7f77dd','#d4537e','#639922','#888780'];
+
+// ── ROUTING ──────────────────────────────────────────────────────────────────
+const PAGES=['main','spending','revenue','deficit','sources'];
+function showPage(id){
+  PAGES.forEach(p=>document.getElementById('page-'+p).style.display=p===id?'block':'none');
+  document.querySelectorAll('.nav-link').forEach(l=>l.classList.toggle('active',l.getAttribute('onclick').includes("'"+id+"'")));
+  if(id==='spending'&&!expInited){initExp();expInited=true;}
+  if(id==='revenue'&&!revInited){initRev();revInited=true;}
+  if(id==='deficit'&&!defInited){initDef();defInited=true;}
+  window.scrollTo(0,0);
+}
+let expInited=false,revInited=false,defInited=false;
+
+// ── EXPENDITURE EXPLORER ─────────────────────────────────────────────────────
+const EXP_D={
+root:{label:'Total Federal Spending',total:7000,yr:1962,def:'All federal outlays FY2025.',hist:{1962:106,1965:118,1970:196,1975:332,1980:591,1985:946,1990:1253,1995:1515,2000:1789,2005:2472,2010:3457,2015:3688,2018:4108,2019:4447,2020:6552,2021:6818,2022:6272,2023:6134,2024:6750,2025:7000},proj:{2026:7260,2027:7600,2028:7900,2029:8200,2030:8560,2031:8950,2032:9360,2033:9800,2034:10260,2035:10730},kids:[{id:'mandatory',label:'Mandatory Spending',v:4170,c:EC[0],def:'Spending required by existing law.',drill:true},{id:'discretionary',label:'Discretionary Spending',v:1900,c:EC[1],def:'Funding approved annually by Congress through appropriations.',drill:true},{id:'interest',label:'Net Interest on Debt',v:930,c:EC[2],def:'Interest paid on the national debt minus interest income received. Rising sharply as total debt and interest rates have increased.',drill:true}]},
+mandatory:{label:'Mandatory Spending',total:4170,yr:1967,def:'Spending governed by permanent law.',hist:{1967:70,1970:120,1975:248,1980:412,1985:600,1990:812,1995:1066,2000:1195,2005:1644,2010:2317,2015:2454,2018:2727,2019:2992,2020:4595,2021:4815,2022:4082,2023:3858,2024:3950,2025:4170},proj:{2026:4340,2027:4590,2028:4810,2029:5050,2030:5320,2031:5620,2032:5940,2033:6290,2034:6660,2035:7050},kids:[{id:'social_security',label:'Social Security',v:1574,c:EC[0],def:'Monthly benefits for retired workers, disabled individuals, and survivors.',drill:true},{id:'medicare',label:'Medicare',v:996,c:EC[1],def:'Federal health insurance for 67M Americans aged 65+ and certain disabled individuals.',drill:true},{id:'medicaid_chip',label:'Medicaid & CHIP',v:626,c:EC[2],def:'Joint federal-state health coverage for 90M+ low-income Americans.',drill:true},{id:'income_security',label:'Income Security',v:558,c:EC[3],def:'SNAP (food stamps), housing assistance, Earned Income Tax Credit, unemployment insurance, child nutrition programs, and other safety-net programs. Spiked dramatically in 2020 during COVID.',drill:false},{id:'fed_retirement',label:'Federal Retirement',v:224,c:EC[4],def:'Pension and benefits for retired federal civilian employees (CSRS/FERS) and military retirees. Grows steadily with COLA adjustments and workforce size.',drill:false},{id:'other_mand',label:'Other Mandatory',v:192,c:EC[5],def:'Agricultural price supports, student loan programs, veterans mandatory benefits, PBGC pension insurance, and other entitlements.',drill:false}]},
+discretionary:{label:'Discretionary Spending',total:1900,yr:1962,def:'~49% defense / 51% non-defense in FY2025.',hist:{1962:87,1965:98,1970:139,1975:190,1980:288,1985:416,1990:500,1995:544,2000:615,2005:1012,2010:1347,2015:1157,2018:1305,2019:1337,2020:1624,2021:1632,2022:1655,2023:1702,2024:1801,2025:1900},proj:{2026:1980,2027:2020,2028:2060,2029:2090,2030:2110,2031:2130,2032:2150,2033:2160,2034:2170,2035:2180},kids:[{id:'defense',label:'National Defense',v:930,c:EC[0],def:'DoD base budget, war funding, and defense-related nuclear programs.',drill:true},{id:'veterans',label:'Veterans Affairs',v:134,c:EC[2],def:'VA hospital care, mental health, disability compensation.',drill:false},{id:'hhs_disc',label:'HHS Discretionary',v:127,c:EC[1],def:'NIH, CDC, FDA, Head Start — separate from Medicare/Medicaid.',drill:true},{id:'transportation',label:'Transportation',v:119,c:EC[4],def:'FAA, highway grants, Amtrak, IIJA infrastructure.',drill:false},{id:'education',label:'Education',v:90,c:EC[3],def:'Title I, IDEA, Pell grants, student aid administration.',drill:false},{id:'homeland',label:'Homeland Security',v:65,c:EC[5],def:'CBP, ICE, FEMA, TSA, Coast Guard, Secret Service.',drill:false},{id:'other_disc',label:'Other Non-Defense',v:435,c:EC[6],def:'State Dept, NASA, EPA, Justice, Energy, Agriculture, Interior, HUD.',drill:false}]},
+interest:{label:'Net Interest on Debt',total:930,yr:1962,def:'Interest paid on the national debt minus offsetting interest income received by trust funds.',hist:{1962:7,1965:9,1970:14,1975:23,1980:53,1985:129,1990:184,1995:232,2000:223,2005:184,2010:197,2015:229,2018:325,2019:375,2020:345,2021:352,2022:476,2023:659,2024:892,2025:930},proj:{2026:1020,2027:1100,2028:1190,2029:1290,2030:1400,2031:1520,2032:1650,2033:1790,2034:1950,2035:2100},kids:[{id:'int_domestic',label:'Domestic Holders',v:558,c:EC[0],def:'Interest to U.S. households, mutual funds, pension funds, banks, and the Federal Reserve.',drill:false},{id:'int_foreign',label:'Foreign Holders',v:279,c:EC[1],def:'Interest to foreign governments and investors. Japan and China are the largest foreign holders.',drill:false},{id:'int_offset',label:'Offsetting Receipts',v:-93,c:EC[7],def:'Interest earned by trust funds (SS, Medicare) — netted against gross interest to produce the net figure.',drill:false}]},
+social_security:{label:'Social Security',total:1574,yr:1967,def:'Largest federal program. Income replacement for retired/disabled workers and survivors.',hist:{1967:20,1970:32,1975:64,1980:118,1985:187,1990:248,1995:335,2000:409,2005:519,2010:706,2015:882,2018:987,2019:1048,2020:1096,2021:1129,2022:1232,2023:1355,2024:1459,2025:1574},proj:{2026:1660,2027:1760,2028:1860,2029:1960,2030:2060,2031:2160,2032:2250,2033:2340,2034:2420,2035:2500},kids:[{id:'oasi',label:'Old-Age & Survivors (OASI)',v:1375,c:EC[0],def:'Retirement benefits for workers 62+. 70.3M beneficiaries. Trust fund projected to be depleted ~2033.',drill:false},{id:'di',label:'Disability Insurance (DI)',v:199,c:EC[1],def:'Benefits for workers under 67 with severe long-term disabilities. ~8.2M disabled worker beneficiaries.',drill:false}]},
+medicare:{label:'Medicare',total:996,yr:1967,def:'Federal health insurance for 67M Americans.',hist:{1967:4,1970:7,1975:16,1980:35,1985:70,1990:107,1995:157,2000:197,2005:298,2010:451,2015:546,2018:589,2019:644,2020:776,2021:696,2022:755,2023:848,2024:912,2025:996},proj:{2026:1060,2027:1140,2028:1230,2029:1320,2030:1420,2031:1530,2032:1650,2033:1780,2034:1910,2035:2050},kids:[{id:'part_a',label:'Part A — Hospital',v:319,c:EC[0],def:'Inpatient hospital, skilled nursing, hospice. Funded by 1.45% payroll tax.',drill:false},{id:'part_b',label:'Part B — Outpatient',v:264,c:EC[1],def:'Doctor visits, outpatient procedures. 75% general revenue / 25% premiums.',drill:false},{id:'part_c',label:'Part C — Medicare Advantage',v:287,c:EC[2],def:'Private plans covering Parts A+B. ~54% of beneficiaries enrolled.',drill:false},{id:'part_d',label:'Part D — Prescription Drugs',v:126,c:EC[3],def:'Outpatient drug coverage. IRA (2022) granted Medicare drug price negotiation.',drill:false}]},
+medicaid_chip:{label:'Medicaid & CHIP',total:626,yr:1967,def:'Joint federal-state programs. 90M+ enrollees.',hist:{1967:2,1970:5,1975:14,1980:26,1985:41,1990:72,1995:120,2000:118,2005:182,2010:273,2015:349,2018:394,2019:409,2020:459,2021:521,2022:592,2023:616,2024:626,2025:626},proj:{2026:590,2027:610,2028:640,2029:670,2030:700,2031:730,2032:760,2033:790,2034:820,2035:855},kids:[{id:'med_acute',label:'Medicaid — Acute Care',v:338,c:EC[0],def:'Physician visits and acute medical services.',drill:false},{id:'med_ltss',label:'Medicaid — Long-Term Services',v:178,c:EC[1],def:'Nursing home and home-/community-based services.',drill:false},{id:'aca_sub',label:'ACA Marketplace Subsidies',v:73,c:EC[2],def:'Premium tax credits for marketplace insurance.',drill:false},{id:'chip',label:'CHIP',v:37,c:EC[3],def:'Covers ~7M children. Enhanced federal match rate.',drill:false}]},
+defense:{label:'National Defense',total:930,yr:1962,def:'All defense-related discretionary spending.',hist:{1962:51,1965:49,1970:81,1975:86,1980:134,1985:252,1990:300,1995:272,2000:295,2005:496,2010:693,2015:589,2018:623,2019:676,2020:738,2021:754,2022:782,2023:820,2024:874,2025:930},proj:{2026:1010,2027:1060,2028:1100,2029:1140,2030:1170,2031:1200,2032:1230,2033:1260,2034:1290,2035:1320},kids:[{id:'def_mil',label:'Military Personnel',v:186,c:EC[0],def:'Pay for 1.3M active duty and 800K reserve service members.',drill:false},{id:'def_om',label:'Operations & Maintenance',v:335,c:EC[1],def:'Training, maintenance, base operations.',drill:false},{id:'def_proc',label:'Procurement',v:177,c:EC[2],def:'F-35, Virginia-class submarines, Army vehicles.',drill:false},{id:'def_rdt',label:'R&D / Test & Evaluation',v:145,c:EC[3],def:'Hypersonics, AI, next-generation platforms.',drill:false},{id:'def_other',label:'Construction & Other',v:87,c:EC[4],def:'Military construction, DOE nuclear, other agencies.',drill:false}]},
+hhs_disc:{label:'HHS Discretionary',total:127,yr:1980,def:'Discretionary HHS funding — excludes Medicare/Medicaid.',hist:{1980:8,1985:14,1990:25,1995:36,2000:57,2005:72,2008:74,2009:84,2010:90,2012:85,2015:83,2017:86,2018:88,2019:91,2020:95,2021:140,2022:130,2023:121,2024:121,2025:127},proj:{2026:95,2027:90,2028:88,2029:87,2030:87,2031:88,2032:89,2033:90,2034:92,2035:94},kids:[{id:'nih',label:'NIH',v:47,c:EC[0],def:'27 institutes funding biomedical research. ~83% distributed as extramural grants.',drill:false},{id:'cdc_disc',label:'CDC',v:9,c:EC[1],def:'Disease surveillance, prevention, outbreak response.',drill:false},{id:'head_start',label:'Head Start / Child Care',v:27,c:EC[2],def:'Early childhood education and Child Care Development Block Grant.',drill:false},{id:'fda',label:'FDA',v:3.5,c:EC[3],def:'Drug, food, and device safety oversight.',drill:false},{id:'other_hhs',label:'Other HHS',v:40.5,c:EC[4],def:'HRSA, IHS, SAMHSA, AHRQ, ASPR.',drill:false}]}
+};
+
+// Leaf historical data including new mandatory categories
+const EXP_LEAF={
+oasi:{hist:{1967:18,1970:28,1975:56,1980:105,1985:168,1990:222,1995:300,2000:368,2005:466,2010:634,2015:794,2018:889,2020:988,2022:1108,2023:1222,2024:1315,2025:1375},proj:{2026:1450,2030:1805,2035:2190}},
+di:{hist:{1967:2,1970:4,1975:8,1980:13,1985:19,1990:26,1995:35,2000:41,2005:53,2010:72,2015:88,2018:98,2020:108,2022:124,2023:133,2024:144,2025:199},proj:{2026:210,2035:310}},
+part_a:{hist:{1970:5,1975:11,1980:24,1985:48,1990:66,1995:115,2000:130,2005:183,2010:247,2015:288,2018:307,2020:359,2022:337,2023:365,2024:390,2025:319},proj:{2026:340,2035:520}},
+part_b:{hist:{1970:2,1975:4,1980:10,1985:22,1990:34,1995:40,2000:52,2005:88,2010:131,2015:178,2018:193,2020:216,2022:230,2023:250,2024:270,2025:264},proj:{2026:280,2035:440}},
+part_c:{hist:{2000:1,2005:44,2010:105,2015:168,2018:215,2020:256,2022:301,2023:352,2024:399,2025:287},proj:{2026:310,2035:700}},
+part_d:{hist:{2006:49,2010:61,2015:79,2018:89,2020:109,2022:115,2023:130,2024:140,2025:126},proj:{2026:135,2035:220}},
+def_mil:{hist:{1980:41,1985:67,1990:75,1995:67,2000:75,2005:107,2010:155,2015:134,2018:151,2020:163,2022:163,2023:167,2024:175,2025:186},proj:{2026:196,2035:235}},
+def_om:{hist:{1980:47,1985:86,1990:93,1995:91,2000:108,2005:171,2010:238,2015:211,2018:222,2020:264,2022:268,2023:284,2024:302,2025:335},proj:{2026:362,2035:425}},
+def_proc:{hist:{1980:29,1985:70,1990:81,1995:53,2000:53,2005:84,2010:133,2015:96,2018:149,2020:143,2022:144,2023:153,2024:160,2025:177},proj:{2026:195,2035:225}},
+def_rdt:{hist:{1980:13,1985:27,1990:37,1995:35,2000:37,2005:70,2010:75,2015:64,2018:88,2020:106,2022:118,2023:129,2024:138,2025:145},proj:{2026:158,2035:185}},
+nih:{hist:{1980:3.7,1985:5.1,1990:7.6,1995:11.3,2000:17.9,2005:28.6,2010:31.0,2015:30.1,2018:37.3,2019:39.2,2020:41.7,2021:43.0,2022:45.0,2023:47.5,2024:47.2,2025:47.0},proj:{2026:28,2027:27,2035:32}},
+cdc_disc:{hist:{1980:0.3,1985:0.5,1990:1.6,1995:2.3,2000:3.8,2005:6.1,2010:6.7,2015:7.0,2018:7.8,2020:8.7,2021:28.0,2022:13.5,2023:10.9,2024:9.3,2025:9.2},proj:{2026:5.6,2027:5.0,2035:6.0}},
+int_domestic:{hist:{1980:35,1985:89,1990:130,1995:168,2000:162,2010:143,2015:166,2018:236,2020:250,2022:345,2023:478,2024:647,2025:558},proj:{2026:740,2035:1524}},
+int_foreign:{hist:{1980:14,1985:32,1990:46,1995:55,2000:53,2010:44,2015:53,2018:80,2020:85,2022:119,2023:165,2024:223,2025:279},proj:{2026:305,2035:560}},
+// NEW: mandatory leaf histories
+income_security:{hist:{1962:25,1965:28,1970:41,1975:108,1980:171,1985:209,1990:244,1995:352,2000:331,2005:472,2008:546,2010:777,2012:743,2015:653,2018:600,2019:613,2020:1325,2021:1408,2022:795,2023:691,2024:680,2025:558},proj:{2026:530,2030:550,2035:590}},
+fed_retirement:{hist:{1962:12,1965:13,1970:18,1975:29,1980:50,1985:74,1990:100,1995:124,2000:145,2005:165,2008:179,2010:191,2012:199,2015:204,2018:209,2019:214,2020:219,2021:218,2022:218,2023:215,2024:216,2025:224},proj:{2026:231,2030:248,2035:270}},
+other_mand:{hist:{1962:10,1965:12,1970:19,1975:32,1980:44,1985:57,1990:68,1995:89,2000:94,2005:117,2008:153,2010:157,2012:140,2015:152,2018:176,2019:175,2020:310,2021:440,2022:175,2023:162,2024:170,2025:192},proj:{2026:180,2030:190,2035:210}}
+};
+
+// Special: Net Interest dual-axis data (debt on right)
+const DEBT_H={1962:302,1965:317,1970:381,1975:542,1980:908,1985:1817,1990:3206,1995:4920,2000:5629,2005:7905,2008:9986,2010:13529,2012:16050,2015:18120,2018:21516,2019:22719,2020:26945,2021:28429,2022:30929,2023:33167,2024:35464,2025:37100};
+const DEBT_P={2026:39000,2027:41000,2028:43100,2029:45300,2030:47700,2031:50300,2032:53000,2033:55900,2034:59000,2035:62000};
+
+let expCur='root',expStack=[],expMode='nominal',expProj=false;
+let expPie=null,expTrend=null,expMod=null;
+function initExp(){expRender();}
+function expReset(){expStack=[];expCur='root';expRender();}
+function expRender(){const n=EXP_D[expCur];expBuildBC();expMets(n);expPie2(n);expTrend2();}
+function expBuildBC(){
+  const el=document.getElementById('exp-bc');el.innerHTML='';
+  const chain=[...expStack,expCur];
+  chain.forEach((id,i)=>{const n=EXP_D[id];if(i<chain.length-1){const s=document.createElement('span');s.className='bci';s.textContent=i===0?'Home':n.label;s.onclick=()=>expNavTo(id,i);el.appendChild(s);const sep=document.createElement('span');sep.className='sep';sep.textContent='›';el.appendChild(sep);}else{const s=document.createElement('span');s.className='cur';s.textContent=id==='root'?'Home':n.label;el.appendChild(s);}});
+}
+function expNavTo(id,depth){expStack=expStack.slice(0,depth);expCur=id;expRender();}
+function expDrill(id){if(!EXP_D[id])return;expStack.push(expCur);expCur=id;expRender();}
+function expSetMode(m,btn){expMode=m;document.querySelectorAll('#page-spending .tb:not(.proj-btn)').forEach(b=>b.classList.remove('act'));btn.classList.add('act');expTrend2();}
+function expToggleProj(btn){expProj=!expProj;btn.classList.toggle('act',expProj);document.getElementById('exp-pnote').classList.toggle('show',expProj);expTrend2();}
+function expMets(n){
+  const el=document.getElementById('exp-mets');
+  const ys=Object.keys(n.hist).map(Number).sort((a,b)=>a-b);
+  const latest=n.hist[ys[ys.length-1]];const prev=n.hist[ys[ys.length-2]]||latest;
+  const chg=((latest-prev)/prev*100).toFixed(1);
+  const pctGDP=(latest/getGDP(ys[ys.length-1])*100).toFixed(1);
+  const par=expStack.length>0?EXP_D[expStack[expStack.length-1]]:null;
+  const pctPar=par?(latest/par.total*100).toFixed(1):null;
+  const proj35=n.proj?n.proj[2035]:null;
+  el.innerHTML=`<div class="met-card"><div class="ml">FY2025 Outlays</div><div class="mv">${fmtB(n.total)}</div><div class="ms">actual</div></div><div class="met-card"><div class="ml">% of GDP</div><div class="mv">${pctGDP}%</div><div class="ms">FY2025</div></div>${pctPar?`<div class="met-card"><div class="ml">Share of parent</div><div class="mv">${pctPar}%</div></div>`:`<div class="met-card"><div class="ml">YoY Change</div><div class="mv">${chg>0?'+':''}${chg}%</div><div class="ms">vs FY2024</div></div>`}${proj35?`<div class="met-card"><div class="ml">CBO 2035 Proj.</div><div class="mv proj">${fmtB(proj35)}</div></div>`:''}`;
+}
+function expPie2(n){
+  document.getElementById('exp-pie-ttl').textContent=n.label;
+  if(expPie)expPie.destroy();
+  expPie=new Chart(document.getElementById('expPieC'),{type:'doughnut',data:{labels:n.kids.map(c=>c.label),datasets:[{data:n.kids.map(c=>Math.max(0,c.v)),backgroundColor:n.kids.map(c=>c.c),borderColor:'transparent',borderWidth:0,hoverOffset:8}]},options:{responsive:true,maintainAspectRatio:false,cutout:'58%',plugins:{legend:{display:false},tooltip:{enabled:false}},onHover:(evt,els)=>{const tt=document.getElementById('exp-tip');if(els.length>0){const i=els[0].index;const ch=n.kids[i];tt.innerHTML=`<div class="tn">${ch.label}</div><div class="tv">${fmtB(ch.v)} · ${fmtP(ch.v,n.total)}</div><div class="td">${ch.def}</div>${ch.drill&&EXP_D[ch.id]?'<div class="th">→ Click to drill down</div>':'<div class="th">→ Click for full history</div>'}`;tt.style.display='block';const wr=document.getElementById('expPieC').closest('.card').getBoundingClientRect();tt.style.left=Math.min(evt.native.clientX-wr.left,wr.width-215)+'px';tt.style.top=(evt.native.clientY-wr.top+12)+'px';}else tt.style.display='none';},onClick:(evt,els)=>{if(els.length>0){const ch=n.kids[els[0].index];if(ch.drill&&EXP_D[ch.id])expDrill(ch.id);else expShowModal(ch);}}}});
+  document.getElementById('exp-leg').innerHTML=n.kids.map(ch=>`<div class="li" onclick="${ch.drill&&EXP_D[ch.id]?`expDrill('${ch.id}')`:`expShowModal(${JSON.stringify(ch).replace(/"/g,"'")})`}"><span class="sw" style="background:${ch.c}"></span><span class="ln">${ch.label}</span><span class="lv">${fmtB(ch.v)}</span><span class="lp">${fmtP(ch.v,n.total)}</span><span class="larr">${ch.drill&&EXP_D[ch.id]?'↓':'→'}</span></div>`).join('');
+}
+function expTrend2(){
+  const n=EXP_D[expCur];
+  document.getElementById('exp-trend-ttl').textContent=n.label+' — over time';
+  const ys=Object.keys(n.hist).map(Number).sort((a,b)=>a-b);
+  const hV=ys.map(y=>expMode==='pct_gdp'?+((n.hist[y]/getGDP(y))*100).toFixed(2):n.hist[y]);
+  let lbl=[...ys.map(String)];
+  const ds=[{label:'$B',data:hV,borderColor:EC[0],backgroundColor:EC[0]+'22',borderWidth:2,pointRadius:2,pointHoverRadius:5,fill:true,tension:0.3}];
+  if(expProj&&n.proj){const py=Object.keys(n.proj).map(Number).sort((a,b)=>a-b);py.forEach(y=>{if(!lbl.includes(String(y)))lbl.push(String(y));});lbl.sort((a,b)=>+a-+b);const jV=hV[hV.length-1],jY=ys[ys.length-1];ds.push({label:'Proj',data:lbl.map(l=>(+l===jY)?jV:(n.proj[+l]!==undefined?(expMode==='pct_gdp'?+((n.proj[+l]/getGDP(+l))*100).toFixed(2):n.proj[+l]):null)),borderColor:'#d4973a',backgroundColor:'#d4973a10',borderWidth:2,borderDash:[6,3],pointRadius:2,fill:false,tension:0.3,spanGaps:false});}
+
+  // Special dual-axis for Net Interest: add total debt on right axis
+  const isInterest=expCur==='interest';
+  let options={responsive:true,maintainAspectRatio:false,plugins:{legend:{display:expProj||isInterest,position:'bottom',labels:{font:{size:10},boxWidth:10,color:'#8fa4be'}},tooltip:{callbacks:{label:ctx=>{if(ctx.dataset.yAxisID==='y2')return'Total Debt: $'+ctx.parsed.y+'T';return expMode==='pct_gdp'?ctx.parsed.y.toFixed(2)+'% GDP':'$'+ctx.parsed.y+'B';}}}},scales:{x:{ticks:{maxTicksLimit:9,font:{size:10},color:'#4d6480'},grid:{color:'rgba(255,255,255,0.04)'}},y:{ticks:{font:{size:10},color:'#4d6480',callback:v=>expMode==='pct_gdp'?v.toFixed(1)+'%':'$'+v+'B'},grid:{color:'rgba(255,255,255,0.05)'}}}};
+  if(isInterest){
+    const debtYs=Object.keys(DEBT_H).map(Number).filter(y=>lbl.includes(String(y)));
+    const debtVals=lbl.map(l=>{const y=+l;const d=DEBT_H[y]||(expProj?DEBT_P[y]:null);return d?+(d/1000).toFixed(1):null;});
+    ds.push({label:'Total Debt ($T, right axis)',data:debtVals,borderColor:'#e8503a',backgroundColor:'transparent',borderWidth:1.5,borderDash:[3,3],pointRadius:2,fill:false,tension:0.3,yAxisID:'y2',spanGaps:false});
+    options.scales.y2={type:'linear',position:'right',ticks:{font:{size:10},color:'#e8503a',callback:v=>v+'T'},grid:{display:false},title:{display:true,text:'Total Debt ($T)',color:'#e8503a',font:{size:10}}};
+  }
+  if(expTrend)expTrend.destroy();
+  expTrend=new Chart(document.getElementById('expTrendC'),{type:'line',data:{labels:lbl,datasets:ds},options});
+}
+function expShowModal(ch){
+  const leaf=EXP_LEAF[ch.id];const root=document.getElementById('exp-modal');
+  if(!leaf){root.innerHTML=`<div class="modal-bg" onclick="expCloseModal()"><div class="modal" onclick="event.stopPropagation()"><button class="mclose" onclick="expCloseModal()">✕ close</button><h2>${ch.label}</h2><div class="msub">${fmtB(ch.v)} · FY2025</div><div class="mdef">${ch.def}</div><p style="font-size:12px;color:var(--text2)">Historical series coming in a future update.</p></div></div>`;return;}
+  const ys=Object.keys(leaf.hist).map(Number).sort((a,b)=>a-b);const latest=leaf.hist[ys[ys.length-1]];
+  root.innerHTML=`<div class="modal-bg" onclick="expCloseModal()"><div class="modal" onclick="event.stopPropagation()"><button class="mclose" onclick="expCloseModal()">✕ close</button><h2>${ch.label}</h2><div class="msub">${fmtB(ch.v)} in FY2025 · Source: OMB Historical Tables</div><div class="mdef">${ch.def}</div><div class="mmets"><div class="met-card"><div class="ml">FY2025</div><div class="mv">${fmtB(latest)}</div></div><div class="met-card"><div class="ml">% of GDP</div><div class="mv">${(latest/30000*100).toFixed(2)}%</div></div><div class="met-card"><div class="ml">Since ${ys[0]}</div><div class="mv">+${((latest-leaf.hist[ys[0]])/leaf.hist[ys[0]]*100).toFixed(0)}%</div></div></div><div style="display:flex;gap:4px;margin-bottom:.6rem"><button class="tb act" id="emb1" onclick="expMModal('nominal',this)">Nominal $B</button><button class="tb" id="emb2" onclick="expMModal('pct_gdp',this)">% of GDP</button>${leaf.proj?'<button class="tb proj-btn" id="emb3" onclick="expMModalProj(this)">+ Projections</button>':''}</div><div style="position:relative;width:100%;height:220px"><canvas id="expMC"></canvas></div><div id="exp-mpnote" class="pnote">Dashed = projections</div></div></div>`;
+  window._eml=leaf;window._emm='nominal';window._emp=false;expBuildMC(leaf,'nominal',false);
+}
+function expBuildMC(leaf,m,p){
+  if(expMod)expMod.destroy();const ys=Object.keys(leaf.hist).map(Number).sort((a,b)=>a-b);
+  const hV=ys.map(y=>m==='pct_gdp'?+((leaf.hist[y]/getGDP(y))*100).toFixed(3):leaf.hist[y]);let lbl=[...ys.map(String)];
+  const ds=[{data:hV,borderColor:EC[0],backgroundColor:EC[0]+'22',borderWidth:2,pointRadius:2,fill:true,tension:0.3}];
+  if(p&&leaf.proj){const py=Object.keys(leaf.proj).map(Number).sort((a,b)=>a-b);py.forEach(y=>{if(!lbl.includes(String(y)))lbl.push(String(y));});lbl.sort((a,b)=>+a-+b);const jV=hV[hV.length-1],jY=ys[ys.length-1];ds.push({data:lbl.map(l=>(+l===jY)?jV:(leaf.proj[+l]!==undefined?(m==='pct_gdp'?+((leaf.proj[+l]/getGDP(+l))*100).toFixed(3):leaf.proj[+l]):null)),borderColor:'#d4973a',borderWidth:2,borderDash:[5,3],pointRadius:2,fill:false,tension:0.3,spanGaps:false});}
+  const cv=document.getElementById('expMC');if(!cv)return;
+  expMod=new Chart(cv,{type:'line',data:{labels:lbl,datasets:ds},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>m==='pct_gdp'?ctx.parsed.y.toFixed(3)+'% GDP':'$'+ctx.parsed.y+'B'}}},scales:{x:{ticks:{maxTicksLimit:10,font:{size:10},color:'#4d6480'},grid:{color:'rgba(255,255,255,0.04)'}},y:{ticks:{font:{size:10},color:'#4d6480',callback:v=>m==='pct_gdp'?v.toFixed(2)+'%':'$'+v+'B'},grid:{color:'rgba(255,255,255,0.05)'}}}}});
+}
+function expMModal(m,btn){window._emm=m;document.querySelectorAll('.modal .tb:not(.proj-btn)').forEach(b=>b.classList.remove('act'));btn.classList.add('act');expBuildMC(window._eml,m,window._emp);}
+function expMModalProj(btn){window._emp=!window._emp;btn.classList.toggle('act',window._emp);document.getElementById('exp-mpnote').classList.toggle('show',window._emp);expBuildMC(window._eml,window._emm,window._emp);}
+function expCloseModal(){document.getElementById('exp-modal').innerHTML='';if(expMod){expMod.destroy();expMod=null;}}
+window.expDrill=expDrill;window.expNavTo=expNavTo;window.expSetMode=expSetMode;window.expToggleProj=expToggleProj;window.expReset=expReset;
+window.expShowModal=expShowModal;window.expCloseModal=expCloseModal;window.expMModal=expMModal;window.expMModalProj=expMModalProj;
+
+// ── REVENUE EXPLORER ─────────────────────────────────────────────────────────
+const IND_WHO={view:'share',groups:[{label:'Top 1%',taxShare:38.4,effRate:26.3,color:'#e8503a'},{label:'Top 2–5%',taxShare:20.9,effRate:19.2,color:'#d4973a'},{label:'Top 6–10%',taxShare:11.2,effRate:14.6,color:'#7f77dd'},{label:'11–25%',taxShare:14.6,effRate:9.8,color:'#1fba82'},{label:'26–50%',taxShare:5.4,effRate:5.0,color:'#4a9eff'},{label:'Bottom 50%',taxShare:3.3,effRate:3.7,color:'#888780'}]};
+const PAYROLL_WHO={view:'rate',groups:[{label:'Top 1%',taxShare:2.6,effRate:2.5,color:'#e8503a'},{label:'Top 2–5%',taxShare:4.8,effRate:3.0,color:'#d4973a'},{label:'Top 6–10%',taxShare:6.4,effRate:5.8,color:'#7f77dd'},{label:'11–25%',taxShare:17.9,effRate:8.4,color:'#1fba82'},{label:'26–50%',taxShare:26.1,effRate:10.2,color:'#4a9eff'},{label:'Bottom 50%',taxShare:42.2,effRate:9.5,color:'#888780'}]};
+const CORP_WHO={byIndustry:[{label:'Finance & Insurance',taxBil:122,pct:27.0,effRate:18.5,color:'#4a9eff'},{label:'Manufacturing',taxBil:95,pct:21.0,effRate:16.8,color:'#1fba82'},{label:'Technology / Info',taxBil:77,pct:17.0,effRate:14.2,color:'#7f77dd'},{label:'Wholesale & Retail',taxBil:54,pct:11.9,effRate:20.1,color:'#d4973a'},{label:'Health Care',taxBil:27,pct:6.0,effRate:19.3,color:'#d4537e'},{label:'Energy & Mining',taxBil:22,pct:4.9,effRate:22.4,color:'#e8503a'},{label:'Real Estate',taxBil:9,pct:2.0,effRate:3.2,color:'#639922'},{label:'Other',taxBil:47,pct:10.4,effRate:17.6,color:'#888780'}],bySizeNote:'Large corporations (assets >$2.5B) generate ~70% of all corporate tax.',topPayers:'Estimated top individual payers: Alphabet (~$14B), Microsoft (~$11B), Apple (~$8B) — together ~7–8% of all corporate tax (Tax Notes, 2023).'};
+
+const REV_D={
+root:{label:'Total Federal Revenue',total:5200,yr:1934,whoKey:null,def:'All federal receipts FY2025.',hist:{1934:3,1940:7,1944:44,1950:39,1955:65,1960:92,1962:100,1965:117,1970:193,1975:279,1980:517,1985:734,1990:1032,1995:1352,2000:2025,2005:2154,2008:2524,2009:2105,2010:2163,2012:2450,2015:3250,2017:3316,2018:3329,2019:3462,2020:3421,2021:4047,2022:4896,2023:4440,2024:4919,2025:5200},proj:{2026:5600,2027:5960,2028:6200,2029:6420,2030:6680,2031:6940,2032:7170,2033:7440,2034:7750,2035:8050},kids:[{id:'individual',label:'Individual Income Tax',v:2694,c:RC[0],def:'Progressive tax on wages, capital gains, dividends. 10–37% rates.',drill:true},{id:'payroll',label:'Payroll Taxes: Employee + Employer',v:1493,c:RC[1],def:'Social Security + Medicare FICA taxes — includes both the employee and employer share. Combined rate: 12.4% OASDI on wages to $168,600 + 2.9% Medicare on all wages.',drill:true},{id:'corporate',label:'Corporate Income Tax',v:453,c:RC[2],def:'21% flat rate on C-corp profits since TCJA (2017). Down from 35% pre-TCJA.',drill:true},{id:'tariffs',label:'Customs Duties / Tariffs',v:195,c:RC[3],def:'Surged 153% to $195B in FY2025 from sweeping new tariffs.',drill:false},{id:'excise',label:'Excise Taxes',v:104,c:RC[4],def:'Per-unit taxes on fuel, alcohol, tobacco, airline tickets.',drill:true},{id:'estate',label:'Estate & Gift Taxes',v:30,c:RC[5],def:'Tax on estates >$13.6M (2025 exemption).',drill:false},{id:'other_rev',label:'Other Revenue',v:231,c:RC[6],def:'Federal Reserve remittances, fees, fines, miscellaneous.',drill:false}]},
+individual:{label:'Individual Income Tax',total:2694,yr:1940,whoKey:'individual',def:'Progressive income tax. Source: IRS TY2023.',hist:{1940:1,1944:20,1950:17,1955:28,1960:40,1962:45,1965:49,1970:90,1975:122,1980:244,1985:334,1990:467,1995:590,2000:1004,2005:927,2008:1146,2009:915,2010:899,2012:1132,2015:1541,2017:1587,2018:1684,2019:1718,2020:1609,2021:2044,2022:2632,2023:2176,2024:2426,2025:2694},proj:{2026:2820,2027:2980,2028:3100,2029:3210,2030:3340,2031:3480,2032:3600,2033:3740,2034:3890,2035:4040},kids:[{id:'ind_wages',label:'Wages & Salaries (withheld)',v:1820,c:RC[0],def:'Tax withheld from paychecks. Largest and most stable component.',drill:false},{id:'ind_cap',label:'Capital Gains & Investment',v:460,c:RC[1],def:'Taxes on realized gains, dividends. Highly volatile with markets.',drill:false},{id:'ind_se',label:'Self-Employment & Other',v:414,c:RC[2],def:'Quarterly estimated payments from self-employed and business owners.',drill:false}]},
+payroll:{label:'Payroll Taxes: Employee + Employer',total:1493,yr:1940,whoKey:'payroll',def:'Includes both employee and employer FICA contributions. The SS wage cap ($168,600) means higher earners pay payroll tax on a smaller share of their total income.',hist:{1940:1,1944:1,1950:3,1955:6,1960:12,1962:13,1965:17,1970:45,1975:85,1980:158,1985:265,1990:380,1995:484,2000:653,2005:794,2008:900,2009:891,2010:865,2012:845,2015:1065,2017:1162,2018:1171,2019:1243,2020:1310,2021:1308,2022:1484,2023:1615,2024:1472,2025:1493},proj:{2026:1570,2027:1640,2028:1700,2029:1760,2030:1830,2031:1900,2032:1970,2033:2040,2034:2120,2035:2200},kids:[{id:'ss_tax',label:'Social Security (OASDI)',v:1083,c:RC[0],def:'12.4% combined (6.2% employee + 6.2% employer) on wages up to $168,600.',drill:false},{id:'medicare_tax',label:'Medicare (HI)',v:370,c:RC[1],def:'2.9% combined (1.45% each) on all wages. +0.9% employee surcharge on wages >$200K.',drill:false},{id:'other_payroll',label:'Other Social Insurance',v:40,c:RC[2],def:'Railroad retirement, FERS, FUTA, other social insurance.',drill:false}]},
+corporate:{label:'Corporate Income Tax',total:453,yr:1940,whoKey:'corporate',def:'21% flat rate. Finance, manufacturing, and tech account for ~65% of all corporate tax.',hist:{1940:1,1944:14,1950:10,1955:17,1960:21,1962:21,1965:26,1970:33,1975:41,1980:65,1985:61,1990:94,1995:157,2000:207,2005:279,2008:304,2009:138,2010:191,2012:242,2015:344,2017:297,2018:205,2019:230,2020:212,2021:372,2022:425,2023:420,2024:530,2025:453},proj:{2026:490,2027:510,2028:530,2029:540,2030:550,2031:560,2032:570,2033:575,2034:580,2035:585},kids:[{id:'corp_large',label:'Large Corps (assets >$10M)',v:340,c:RC[0],def:'~22,000 large corporations generate ~75% of all corporate tax.',drill:false},{id:'corp_mid',label:'Mid-size Corps',v:80,c:RC[2],def:'~180,000 mid-sized corporations.',drill:false},{id:'corp_small',label:'Small C-Corps',v:33,c:RC[1],def:'~2.3M small C-corporations.',drill:false}]},
+excise:{label:'Excise Taxes',total:104,yr:1940,whoKey:null,def:'Per-unit taxes on specific goods. Most earmarked for trust funds.',hist:{1940:2,1944:5,1950:8,1955:9,1960:11,1962:13,1965:14,1970:15,1975:17,1980:24,1985:36,1990:35,1995:57,2000:69,2005:73,2008:67,2010:67,2012:79,2015:98,2017:83,2018:95,2019:99,2020:87,2021:75,2022:89,2023:96,2024:99,2025:104},proj:{2026:105,2027:107,2028:109,2029:111,2030:113,2031:115,2032:117,2033:119,2034:121,2035:123},kids:[{id:'fuel_excise',label:'Motor Fuel Taxes',v:37,c:RC[0],def:'18.4¢/gallon gas tax, unchanged since 1993. Highway Trust Fund.',drill:false},{id:'airline_excise',label:'Airline / Airport',v:18,c:RC[1],def:'7.5% airfare tax. Airport & Airway Trust Fund.',drill:false},{id:'alcohol_tobacco',label:'Alcohol & Tobacco',v:20,c:RC[2],def:'Excise on beer, wine, spirits, cigarettes.',drill:false},{id:'other_excise',label:'Other Excise',v:29,c:RC[3],def:'Firearms, indoor tanning, communications, and other.',drill:false}]}
+};
+const REV_LEAF={
+ind_wages:{hist:{1960:25,1965:32,1970:65,1975:94,1980:186,1985:261,1990:377,1995:475,2000:813,2005:735,2008:912,2009:706,2010:683,2015:1241,2018:1393,2020:1316,2022:2039,2023:1726,2024:1668,2025:1820},proj:{2026:1910,2030:2300,2035:3000}},
+ind_cap:{hist:{1980:30,1985:44,1990:60,1995:76,2000:153,2005:126,2008:165,2009:107,2010:109,2015:220,2018:218,2020:222,2021:327,2022:497,2023:370,2024:648,2025:460},proj:{2026:490,2030:580,2035:700}},
+ss_tax:{hist:{1950:2,1955:5,1960:10,1965:14,1970:35,1975:65,1980:119,1985:204,1990:289,1995:368,2000:490,2005:594,2008:672,2010:631,2015:786,2018:877,2020:981,2022:1111,2023:1205,2024:1097,2025:1083},proj:{2026:1140,2030:1370,2035:1595}},
+medicare_tax:{hist:{1970:5,1975:13,1980:27,1985:47,1990:70,1995:95,2000:136,2005:170,2008:192,2010:196,2015:241,2018:262,2020:305,2022:341,2023:381,2024:344,2025:370},proj:{2026:390,2030:460,2035:550}},
+tariffs:{hist:{1934:3,1940:0.3,1950:0.4,1960:1,1970:2.4,1975:4,1980:7,1985:12,1990:16,1995:19,2000:19,2005:24,2008:27,2010:25,2015:35,2018:41,2019:71,2020:73,2022:91,2023:81,2024:77,2025:195},proj:{2026:420,2027:390,2028:370,2030:350,2035:400}},
+estate:{hist:{1940:0.4,1950:0.7,1960:1.6,1970:3.6,1975:4.6,1980:6.4,1985:6,1990:11,1995:15,2000:29,2005:25,2008:29,2010:19,2015:19,2018:25,2020:18,2022:32,2023:28,2024:32,2025:30},proj:{2026:29,2030:28,2035:26}}
+};
+
+let revCur='root',revStack=[],revMode='nominal',revProj=false,revWho=false;
+let revPie=null,revTrend=null,revMod=null;
+function initRev(){revRender();}
+function revReset(){revStack=[];revCur='root';revWho=false;revRender();}
+function revRender(){
+  const n=REV_D[revCur];revBuildBC();revMets(n);revPie2(n);
+  const wb=document.getElementById('rev-who-btn');
+  if(n.whoKey){wb.style.display='';wb.textContent=n.whoKey==='corporate'?'By industry':'Who pays?';}
+  else{wb.style.display='none';revWho=false;wb.classList.remove('act');}
+  document.getElementById('rev-trend-wrap').style.display=revWho?'none':'block';
+  document.getElementById('rev-who-wrap').style.display=revWho?'block':'none';
+  if(revWho)revRenderWho();else revTrend2();
+}
+function revBuildBC(){
+  const el=document.getElementById('rev-bc');el.innerHTML='';
+  const chain=[...revStack,revCur];
+  chain.forEach((id,i)=>{const n=REV_D[id];if(i<chain.length-1){const s=document.createElement('span');s.className='bci';s.textContent=i===0?'Home':n.label;s.onclick=()=>revNavTo(id,i);el.appendChild(s);const sep=document.createElement('span');sep.className='sep';sep.textContent='›';el.appendChild(sep);}else{const s=document.createElement('span');s.className='cur';s.textContent=id==='root'?'Home':n.label;el.appendChild(s);}});
+}
+function revNavTo(id,depth){revStack=revStack.slice(0,depth);revCur=id;revWho=false;revRender();}
+function revDrill(id){if(!REV_D[id])return;revStack.push(revCur);revCur=id;revWho=false;revRender();}
+function revSetMode(m,btn){revMode=m;document.querySelectorAll('#rev-tabs .tb:not(.proj-btn):not(.who-btn)').forEach(b=>b.classList.remove('act'));btn.classList.add('act');if(!revWho)revTrend2();}
+function revToggleProj(btn){revProj=!revProj;btn.classList.toggle('act',revProj);document.getElementById('rev-pnote').classList.toggle('show',revProj);if(!revWho)revTrend2();}
+function revToggleWho(btn){revWho=!revWho;btn.classList.toggle('act',revWho);document.getElementById('rev-trend-wrap').style.display=revWho?'none':'block';document.getElementById('rev-who-wrap').style.display=revWho?'block':'none';if(revWho)revRenderWho();else revTrend2();}
+function revMets(n){
+  const el=document.getElementById('rev-mets');
+  const ys=Object.keys(n.hist).map(Number).sort((a,b)=>a-b);
+  const latest=n.hist[ys[ys.length-1]];const prev=n.hist[ys[ys.length-2]]||latest;
+  const chg=((latest-prev)/prev*100).toFixed(1);
+  const pctGDP=(latest/getGDP(ys[ys.length-1])*100).toFixed(1);
+  const par=revStack.length>0?REV_D[revStack[revStack.length-1]]:null;
+  const pctPar=par?(latest/par.total*100).toFixed(1):null;
+  const proj35=n.proj?n.proj[2035]:null;
+  el.innerHTML=`<div class="met-card"><div class="ml">FY2025 Receipts</div><div class="mv">${fmtB(n.total)}</div><div class="ms">actual</div></div><div class="met-card"><div class="ml">% of GDP</div><div class="mv">${pctGDP}%</div></div>${pctPar?`<div class="met-card"><div class="ml">Share of total</div><div class="mv">${pctPar}%</div></div>`:`<div class="met-card"><div class="ml">YoY Change</div><div class="mv">${chg>0?'+':''}${chg}%</div></div>`}${proj35?`<div class="met-card"><div class="ml">CBO 2035 Proj.</div><div class="mv proj">${fmtB(proj35)}</div></div>`:''}`;
+}
+function revPie2(n){
+  document.getElementById('rev-pie-ttl').textContent=n.label;
+  if(revPie)revPie.destroy();
+  revPie=new Chart(document.getElementById('revPieC'),{type:'doughnut',data:{labels:n.kids.map(c=>c.label),datasets:[{data:n.kids.map(c=>Math.max(0,c.v)),backgroundColor:n.kids.map(c=>c.c),borderColor:'transparent',borderWidth:0,hoverOffset:8}]},options:{responsive:true,maintainAspectRatio:false,cutout:'58%',plugins:{legend:{display:false},tooltip:{enabled:false}},onHover:(evt,els)=>{const tt=document.getElementById('rev-tip');if(els.length>0){const i=els[0].index;const ch=n.kids[i];tt.innerHTML=`<div class="tn">${ch.label}</div><div class="tv">${fmtB(ch.v)} · ${fmtP(ch.v,n.total)}</div><div class="td">${ch.def}</div>${ch.drill&&REV_D[ch.id]?'<div class="th">→ Click to drill down</div>':'<div class="th">→ Click for full history</div>'}`;tt.style.display='block';const wr=document.getElementById('revPieC').closest('.card').getBoundingClientRect();tt.style.left=Math.min(evt.native.clientX-wr.left,wr.width-215)+'px';tt.style.top=(evt.native.clientY-wr.top+12)+'px';}else tt.style.display='none';},onClick:(evt,els)=>{if(els.length>0){const ch=n.kids[els[0].index];if(ch.drill&&REV_D[ch.id])revDrill(ch.id);else revShowModal(ch);}}}});
+  document.getElementById('rev-leg').innerHTML=n.kids.map(ch=>`<div class="li" onclick="${ch.drill&&REV_D[ch.id]?`revDrill('${ch.id}')`:`revShowModal(${JSON.stringify(ch).replace(/"/g,"'")})`}"><span class="sw" style="background:${ch.c}"></span><span class="ln">${ch.label}</span><span class="lv">${fmtB(ch.v)}</span><span class="lp">${fmtP(ch.v,n.total)}</span><span class="larr">${ch.drill&&REV_D[ch.id]?'↓':'→'}</span></div>`).join('');
+}
+function revTrend2(){
+  const n=REV_D[revCur];document.getElementById('rev-right-ttl').textContent=n.label+' — over time';
+  const ys=Object.keys(n.hist).map(Number).sort((a,b)=>a-b);
+  const hV=ys.map(y=>revMode==='pct_gdp'?+((n.hist[y]/getGDP(y))*100).toFixed(2):n.hist[y]);
+  let lbl=[...ys.map(String)];
+  const ds=[{label:'$B',data:hV,borderColor:RC[1],backgroundColor:RC[1]+'22',borderWidth:2,pointRadius:2,pointHoverRadius:5,fill:true,tension:0.3}];
+  if(revProj&&n.proj){const py=Object.keys(n.proj).map(Number).sort((a,b)=>a-b);py.forEach(y=>{if(!lbl.includes(String(y)))lbl.push(String(y));});lbl.sort((a,b)=>+a-+b);const jV=hV[hV.length-1],jY=ys[ys.length-1];ds.push({label:'Proj',data:lbl.map(l=>(+l===jY)?jV:(n.proj[+l]!==undefined?(revMode==='pct_gdp'?+((n.proj[+l]/getGDP(+l))*100).toFixed(2):n.proj[+l]):null)),borderColor:RC[1],backgroundColor:'transparent',borderWidth:2,borderDash:[6,3],pointRadius:2,fill:false,tension:0.3,spanGaps:false});}
+  if(revTrend)revTrend.destroy();
+  revTrend=new Chart(document.getElementById('revTrendC'),{type:'line',data:{labels:lbl,datasets:ds},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:revProj,position:'bottom',labels:{font:{size:10},boxWidth:10,color:'#8fa4be'}},tooltip:{callbacks:{label:ctx=>revMode==='pct_gdp'?ctx.parsed.y.toFixed(2)+'% GDP':'$'+ctx.parsed.y+'B'}}},scales:{x:{ticks:{maxTicksLimit:10,font:{size:10},color:'#4d6480'},grid:{color:'rgba(255,255,255,0.04)'}},y:{ticks:{font:{size:10},color:'#4d6480',callback:v=>revMode==='pct_gdp'?v.toFixed(1)+'%':'$'+v+'B'},grid:{color:'rgba(255,255,255,0.05)'}}}}});
+}
+function revRenderWho(){
+  const n=REV_D[revCur];
+  const isCorp=n.whoKey==='corporate';
+  document.getElementById('rev-right-ttl').textContent=isCorp?'Corporate tax by industry (TY2022)':'Who pays — '+n.label;
+  const wrap=document.getElementById('rev-who-wrap');
+  const tyTag=`<span class="ty-tag">TY2023</span>`;
+  if(isCorp){
+    const rows=CORP_WHO.byIndustry;const maxPct=Math.max(...rows.map(r=>r.pct));
+    wrap.innerHTML=`<div style="display:flex;gap:4px;margin-bottom:.5rem"><button class="wt act" id="ct1" onclick="revSetCorpView('share',this)">Share of tax</button><button class="wt" id="ct2" onclick="revSetCorpView('rate',this)">Effective rate</button></div><div class="who-hdr"><span>Industry</span><span></span><span id="cv-lbl" style="text-align:right">% of total</span><span style="text-align:right">Eff. rate</span></div><div id="corp-rows">${rows.map(r=>`<div class="who-row"><div class="who-label">${r.label}</div><div class="who-bar-wrap"><div class="who-bar" style="background:${r.color};width:${(r.pct/maxPct*100).toFixed(0)}%"></div></div><div class="who-val">${r.pct.toFixed(1)}%</div><div class="who-rate">${r.effRate.toFixed(1)}%</div></div>`).join('')}</div><div class="src-note">${CORP_WHO.bySizeNote}</div><div class="src-note" style="margin-top:3px">${CORP_WHO.topPayers}</div><div class="src-note" style="margin-top:3px">Source: IRS SOI Pub. 16, TY2022. Scaled to FY2025.</div>`;
+  }else{
+    const data=n.whoKey==='payroll'?PAYROLL_WHO:IND_WHO;const rows=data.groups;
+    const maxShare=Math.max(...rows.map(r=>r.taxShare));const maxRate=Math.max(...rows.map(r=>r.effRate));
+    const isPayroll=n.whoKey==='payroll';
+    wrap.innerHTML=`<div style="display:flex;align-items:center;gap:8px;margin-bottom:.5rem"><div style="display:flex;gap:4px"><button class="wt ${data.view==='share'?'act':''}" onclick="revSetWhoView('share',this)">Share of tax</button><button class="wt ${data.view==='rate'?'act':''}" onclick="revSetWhoView('rate',this)">Effective rate</button></div><span class="ty-tag" style="margin-left:4px">TY2023${isPayroll?' (CBO 2022)':''}</span></div><div class="who-hdr"><span>Group</span><span></span><span style="text-align:right">${data.view==='share'?'% of tax':'Eff. rate'}</span><span style="text-align:right">${data.view==='share'?'Eff. rate':'% of tax'}</span></div><div>${rows.map(r=>{const bv=data.view==='share'?r.taxShare/maxShare*100:r.effRate/maxRate*100;return`<div class="who-row"><div class="who-label">${r.label}</div><div class="who-bar-wrap"><div class="who-bar" style="background:${r.color};width:${bv.toFixed(0)}%"></div></div><div class="who-val">${data.view==='share'?r.taxShare.toFixed(1)+'%':r.effRate.toFixed(1)+'%'}</div><div class="who-rate">${data.view==='share'?r.effRate.toFixed(1)+'%':r.taxShare.toFixed(1)+'%'}</div></div>`;}).join('')}</div>${isPayroll?`<div class="src-note">Payroll taxes include both employee and employer share. The SS wage cap means higher earners pay payroll tax on a smaller fraction of their total income. Source: CBO Distribution of Federal Taxes, 2022.</div>`:`<div class="src-note">Source: IRS Statistics of Income, Tax Year 2023. 153.1M returns filed, $15.2T total AGI reported.</div>`}`;
+  }
+}
+function revSetWhoView(v,btn){const data=REV_D[revCur].whoKey==='payroll'?PAYROLL_WHO:IND_WHO;data.view=v;document.querySelectorAll('.wt').forEach(b=>b.classList.remove('act'));btn.classList.add('act');revRenderWho();}
+function revSetCorpView(v,btn){document.querySelectorAll('.wt').forEach(b=>b.classList.remove('act'));btn.classList.add('act');const rows=CORP_WHO.byIndustry;const maxPct=Math.max(...rows.map(r=>r.pct));const maxRate=Math.max(...rows.map(r=>r.effRate));const rowEls=document.querySelectorAll('#corp-rows .who-row');document.getElementById('cv-lbl').textContent=v==='share'?'% of total':'Eff. rate';rows.forEach((r,i)=>{const bar=rowEls[i].querySelector('.who-bar');const val=rowEls[i].querySelector('.who-val');const rate=rowEls[i].querySelector('.who-rate');if(v==='share'){bar.style.width=(r.pct/maxPct*100).toFixed(0)+'%';val.textContent=r.pct.toFixed(1)+'%';rate.textContent=r.effRate.toFixed(1)+'%';}else{bar.style.width=(r.effRate/maxRate*100).toFixed(0)+'%';val.textContent=r.effRate.toFixed(1)+'%';rate.textContent=r.pct.toFixed(1)+'%';}});}
+function revShowModal(ch){
+  const leaf=REV_LEAF[ch.id];const root=document.getElementById('rev-modal');
+  if(!leaf){root.innerHTML=`<div class="modal-bg" onclick="revCloseModal()"><div class="modal" onclick="event.stopPropagation()"><button class="mclose" onclick="revCloseModal()">✕ close</button><h2>${ch.label}</h2><div class="msub">${fmtB(ch.v)} · FY2025</div><div class="mdef">${ch.def}</div></div></div>`;return;}
+  const ys=Object.keys(leaf.hist).map(Number).sort((a,b)=>a-b);const latest=leaf.hist[ys[ys.length-1]];
+  root.innerHTML=`<div class="modal-bg" onclick="revCloseModal()"><div class="modal" onclick="event.stopPropagation()"><button class="mclose" onclick="revCloseModal()">✕ close</button><h2>${ch.label}</h2><div class="msub">${fmtB(ch.v)} in FY2025 · Source: OMB Historical Tables, IRS SOI</div><div class="mdef">${ch.def}</div><div class="mmets"><div class="met-card"><div class="ml">FY2025</div><div class="mv">${fmtB(latest)}</div></div><div class="met-card"><div class="ml">% of GDP</div><div class="mv">${(latest/30000*100).toFixed(2)}%</div></div><div class="met-card"><div class="ml">YoY</div><div class="mv">${((latest-(leaf.hist[ys[ys.length-2]]||latest))/(leaf.hist[ys[ys.length-2]]||latest)*100).toFixed(1)}%</div></div></div><div style="display:flex;gap:4px;margin-bottom:.6rem"><button class="tb act" onclick="revMModal('nominal',this)">Nominal $B</button><button class="tb" onclick="revMModal('pct_gdp',this)">% of GDP</button>${leaf.proj?'<button class="tb proj-btn" onclick="revMModalProj(this)">+ Projections</button>':''}</div><div style="position:relative;width:100%;height:220px"><canvas id="revMC"></canvas></div><div id="rev-mpnote" class="pnote">Dashed = projections</div></div></div>`;
+  window._rml=leaf;window._rmm='nominal';window._rmp=false;revBuildMC(leaf,'nominal',false);
+}
+function revBuildMC(leaf,m,p){
+  if(revMod)revMod.destroy();const ys=Object.keys(leaf.hist).map(Number).sort((a,b)=>a-b);
+  const hV=ys.map(y=>m==='pct_gdp'?+((leaf.hist[y]/getGDP(y))*100).toFixed(3):leaf.hist[y]);let lbl=[...ys.map(String)];
+  const ds=[{data:hV,borderColor:RC[1],backgroundColor:RC[1]+'22',borderWidth:2,pointRadius:2,fill:true,tension:0.3}];
+  if(p&&leaf.proj){const py=Object.keys(leaf.proj).map(Number).sort((a,b)=>a-b);py.forEach(y=>{if(!lbl.includes(String(y)))lbl.push(String(y));});lbl.sort((a,b)=>+a-+b);const jV=hV[hV.length-1],jY=ys[ys.length-1];ds.push({data:lbl.map(l=>(+l===jY)?jV:(leaf.proj[+l]!==undefined?(m==='pct_gdp'?+((leaf.proj[+l]/getGDP(+l))*100).toFixed(3):leaf.proj[+l]):null)),borderColor:RC[1],borderWidth:2,borderDash:[5,3],pointRadius:2,fill:false,tension:0.3,spanGaps:false});}
+  const cv=document.getElementById('revMC');if(!cv)return;
+  revMod=new Chart(cv,{type:'line',data:{labels:lbl,datasets:ds},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>m==='pct_gdp'?ctx.parsed.y.toFixed(3)+'% GDP':'$'+ctx.parsed.y+'B'}}},scales:{x:{ticks:{maxTicksLimit:10,font:{size:10},color:'#4d6480'},grid:{color:'rgba(255,255,255,0.04)'}},y:{ticks:{font:{size:10},color:'#4d6480',callback:v=>m==='pct_gdp'?v.toFixed(2)+'%':'$'+v+'B'},grid:{color:'rgba(255,255,255,0.05)'}}}}});
+}
+function revMModal(m,btn){window._rmm=m;document.querySelectorAll('.modal .tb:not(.proj-btn)').forEach(b=>b.classList.remove('act'));btn.classList.add('act');revBuildMC(window._rml,m,window._rmp);}
+function revMModalProj(btn){window._rmp=!window._rmp;btn.classList.toggle('act',window._rmp);document.getElementById('rev-mpnote').classList.toggle('show',window._rmp);revBuildMC(window._rml,window._rmm,window._rmp);}
+function revCloseModal(){document.getElementById('rev-modal').innerHTML='';if(revMod){revMod.destroy();revMod=null;}}
+window.revDrill=revDrill;window.revNavTo=revNavTo;window.revSetMode=revSetMode;window.revToggleProj=revToggleProj;window.revToggleWho=revToggleWho;window.revReset=revReset;
+window.revShowModal=revShowModal;window.revCloseModal=revCloseModal;window.revMModal=revMModal;window.revMModalProj=revMModalProj;
+window.revSetWhoView=revSetWhoView;window.revSetCorpView=revSetCorpView;
+
+// ── DEFICIT CHART ─────────────────────────────────────────────────────────────
+const HIST_DEF={1962:-7,1963:-4,1964:-6,1965:-1,1966:-4,1967:-9,1968:-25,1969:3,1970:-3,1971:-23,1972:-23,1973:-15,1974:-6,1975:-53,1976:-74,1977:-54,1978:-59,1979:-41,1980:-74,1981:-79,1982:-128,1983:-208,1984:-185,1985:-212,1986:-221,1987:-150,1988:-155,1989:-153,1990:-221,1991:-269,1992:-290,1993:-255,1994:-203,1995:-164,1996:-107,1997:-22,1998:69,1999:126,2000:236,2001:128,2002:-158,2003:-378,2004:-413,2005:-318,2006:-248,2007:-161,2008:-459,2009:-1413,2010:-1294,2011:-1300,2012:-1087,2013:-680,2014:-485,2015:-439,2016:-585,2017:-665,2018:-779,2019:-984,2020:-3132,2021:-2776,2022:-1375,2023:-1695,2024:-1833,2025:-1800};
+const PROJ_DEF={2026:-1900,2027:-2000,2028:-2100,2029:-2200,2030:-2350,2031:-2550,2032:-2700,2033:-2850,2034:-3000,2035:-3100,2036:-3140};
+
+// Real GDP growth rate % YoY — BEA, chained 2017 dollars (inflation-adjusted)
+// Real = Nominal GDP growth minus inflation. Carter years ~9-11% nominal but only 2-4% real due to high inflation.
+const GDP_GR={1963:4.4,1964:5.8,1965:6.4,1966:6.5,1967:2.5,1968:4.8,1969:3.1,1970:-0.2,1971:3.3,1972:5.3,1973:5.6,1974:-0.5,1975:-0.2,1976:5.4,1977:4.6,1978:5.5,1979:3.2,1980:-0.3,1981:2.5,1982:-1.8,1983:4.6,1984:7.2,1985:4.2,1986:3.5,1987:3.5,1988:4.2,1989:3.7,1990:1.9,1991:-0.1,1992:3.5,1993:2.8,1994:4.0,1995:2.7,1996:3.8,1997:4.4,1998:4.5,1999:4.8,2000:4.1,2001:1.0,2002:1.7,2003:2.8,2004:3.9,2005:3.5,2006:2.8,2007:2.0,2008:-0.1,2009:-2.5,2010:2.6,2011:1.6,2012:2.2,2013:1.8,2014:2.5,2015:3.1,2016:1.7,2017:2.3,2018:2.9,2019:2.3,2020:-2.8,2021:5.9,2022:2.1,2023:2.5,2024:2.8,2025:2.2};
+
+let defView='nom',defProjOn=false,defChart=null;
+function defGetYears(){const h=Object.keys(HIST_DEF).map(Number).sort((a,b)=>a-b);const p=Object.keys(PROJ_DEF).map(Number).sort((a,b)=>a-b);return defProjOn?[...h,...p]:h;}
+function defGetVal(y){const raw=y<=2025?HIST_DEF[y]:PROJ_DEF[y];const gdp=y<=2025?GDP_H[y]:GDP_P[y];return defView==='pct'?+((raw/gdp)*100).toFixed(2):raw;}
+function defBuildAdminRow(){
+  const years=defGetYears();const total=years.length;
+  const row=document.getElementById('def-admin-row');row.innerHTML='';
+  ADMINS.forEach(a=>{
+    const vs=Math.max(a.start,years[0]);const ve=Math.min(a.end,years[years.length-1]);
+    if(vs>ve)return;
+    const count=ve-vs+1;const pct=(count/total*100).toFixed(3);
+    const isR=a.party==='R';
+    const bg=isR?'#1a3a5c':'#0a2e1e';const border=isR?'#2a5a8c':'#1a5e3e';const col=isR?'#7ab8f5':'#5dd4a0';
+    const div=document.createElement('div');div.style.cssText=`flex:0 0 ${pct}%;background:${bg};border:0.5px solid ${border};display:flex;align-items:center;justify-content:center;overflow:hidden;min-width:0;`;
+    const span=document.createElement('span');span.style.cssText=`font-size:9.5px;font-weight:500;color:${col};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 3px;font-family:var(--sans);`;
+    span.textContent=a.name;div.appendChild(span);row.appendChild(div);
+  });
+}
+function initDef(){defBuildChart();}
+function defBuildChart(){
+  const years=defGetYears();
+  const barData=years.map(defGetVal);
+  const bgColors=years.map(y=>y>2025?'#d4973a55':(HIST_DEF[y]>=0?'#1fba82CC':'#e8503aCC'));
+  const bdColors=years.map(y=>y>2025?'#d4973a':(HIST_DEF[y]>=0?'#1fba82':'#e8503a'));
+  const datasets=[{type:'bar',label:'Deficit/Surplus',data:barData,backgroundColor:bgColors,borderColor:bdColors,borderWidth:1,borderSkipped:false}];
+  if(defView==='pct'){datasets.push({type:'line',label:'50yr avg',data:years.map(()=>-3.8),borderColor:'#4d6480',borderWidth:1.5,borderDash:[5,4],pointRadius:0,fill:false});document.getElementById('def-avg-legend').style.display='flex';}
+  else document.getElementById('def-avg-legend').style.display='none';
+  // Real GDP growth on right axis
+  const gdpGrData=years.map(y=>GDP_GR[y]??null);
+  datasets.push({type:'line',label:'Real GDP growth % (inflation-adjusted)',data:gdpGrData,borderColor:'#7f77dd',backgroundColor:'transparent',borderWidth:1.5,pointRadius:1.5,pointHoverRadius:4,fill:false,tension:0.3,yAxisID:'y2',spanGaps:false});
+
+  const yFmt=v=>{if(defView==='pct')return(v>=0?'+':'')+v.toFixed(1)+'%';const s=v>=0?'+':'−';const a=Math.abs(v);return s+'$'+(a>=1000?(a/1000).toFixed(1)+'T':Math.round(a)+'B');};
+  const scales={
+    x:{ticks:{maxTicksLimit:13,font:{size:10},color:'#4d6480'},grid:{color:'rgba(255,255,255,0.04)'}},
+    y:{ticks:{font:{size:10},color:'#4d6480',callback:v=>yFmt(v)},grid:{color:'rgba(255,255,255,0.06)'},grace:'5%'},
+    y2:{type:'linear',position:'right',ticks:{font:{size:10},color:'#7f77dd',callback:v=>v.toFixed(1)+'%'},grid:{display:false},
+      title:{display:true,text:'Real GDP growth % (inflation-adjusted)',color:'#7f77dd',font:{size:10}}}
+  };
+  if(defChart)defChart.destroy();
+  defChart=new Chart(document.getElementById('defC'),{type:'bar',data:{labels:years.map(String),datasets},options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>{
+      if(ctx.dataset.label&&ctx.dataset.label.includes('Real GDP'))return'Real GDP growth (inflation-adj.): '+(ctx.parsed.y>=0?'+':'')+ctx.parsed.y.toFixed(1)+'%';
+      if(ctx.dataset.label==='50yr avg')return'50-yr avg deficit: −3.8% GDP';
+      const v=ctx.parsed.y,yr=+ctx.label;
+      const tag=yr>2025?'[proj] ':(v>=0?'Surplus: ':'Deficit: ');
+      if(defView==='pct')return tag+(v>=0?'+':'')+v.toFixed(1)+'% of GDP';
+      const s=v>=0?'+':'−';const a=Math.abs(v);
+      return tag+s+'$'+(a>=1000?(a/1000).toFixed(1)+'T':Math.round(a)+'B');
+    }}}},scales}});
+}
+function defSetV(v){
+  defView=v;
+  ['nom','pct'].forEach(id=>{const b=document.getElementById('def-btn-'+id);const act=id===v;b.style.background=act?'var(--text)':'transparent';b.style.color=act?'var(--navy)':'var(--text2)';b.style.borderColor=act?'var(--text)':'var(--border)';});
+  defBuildChart();
+}
+function defToggleP(){defProjOn=!defProjOn;const b=document.getElementById('def-btn-proj');b.style.background=defProjOn?'var(--amber)':'transparent';b.style.color=defProjOn?'var(--navy)':'var(--amber)';defBuildChart();}
+window.defSetV=defSetV;window.defToggleP=defToggleP;
+showPage('main');
+</script>
+</body>
+</html>

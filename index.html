@@ -109,7 +109,7 @@ footer p{font-size:12px;color:var(--text3)}
 .source-item:last-child{border-bottom:none}
 .source-item .sname{font-size:13px;font-weight:500;color:var(--text);margin-bottom:2px}
 .source-item .sdesc{font-size:12px;color:var(--text2);line-height:1.6}
-.source-item .surl{font-size:11px;font-family:var(--mono);color:var(--accent);margin-top:2px}
+.source-item .surl{font-size:11px;font-family:var(--mono);color:var(--accent);margin-top:2px}.source-item .surl a{color:var(--accent);text-decoration:none}.source-item .surl a:hover{text-decoration:underline}
 .back-btn{display:inline-flex;align-items:center;gap:6px;background:var(--navy3);border:1px solid var(--border);border-radius:6px;padding:6px 14px;font-size:12px;font-weight:500;color:var(--text2);cursor:pointer;transition:all .15s;margin-bottom:1.5rem}
 .back-btn:hover{color:var(--text)}
 
@@ -285,7 +285,7 @@ footer p{font-size:12px;color:var(--text3)}
   <div class="two-col">
     <div class="card" style="position:relative">
       <div class="card-label" id="exp-pie-ttl">Spending breakdown</div>
-      <div style="position:relative;width:100%;height:260px"><canvas id="expPieC"></canvas><div id="exp-tip" class="tip" style="display:none"></div></div>
+      <div style="position:relative;width:100%;height:260px"><canvas id="expPieC"></canvas><div id="exp-tip" class="tip" style="display:none"></div><div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;width:90px;font-size:10px;color:#4d6480;line-height:1.4">Click slice<br>for details</div></div>
       <div id="exp-leg" class="leg"></div>
     </div>
     <div class="card">
@@ -325,7 +325,7 @@ footer p{font-size:12px;color:var(--text3)}
   <div class="two-col">
     <div class="card" style="position:relative">
       <div class="card-label" id="rev-pie-ttl">Revenue by source</div>
-      <div style="position:relative;width:100%;height:260px"><canvas id="revPieC"></canvas><div id="rev-tip" class="tip" style="display:none"></div></div>
+      <div style="position:relative;width:100%;height:260px"><canvas id="revPieC"></canvas><div id="rev-tip" class="tip" style="display:none"></div><div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;pointer-events:none;width:90px;font-size:10px;color:#4d6480;line-height:1.4">Click slice<br>for details</div></div>
       <div id="rev-leg" class="leg"></div>
     </div>
     <div class="card">
@@ -389,35 +389,35 @@ footer p{font-size:12px;color:var(--text3)}
 <div class="section">
   <div class="source-group">
     <h3>Budget Totals &amp; Historical Spending</h3>
-    <div class="source-item"><div class="sname">OMB Historical Tables — Table 1.1: Summary of Receipts, Outlays, and Surpluses or Deficits</div><div class="sdesc">Primary source for all annual totals. Used for total outlays, revenues, and deficit/surplus by fiscal year (1962–2025).</div><div class="surl">whitehouse.gov/omb/budget/historical-tables</div></div>
-    <div class="source-item"><div class="sname">OMB Historical Tables — Table 3.2: Outlays by Function and Subfunction</div><div class="sdesc">Spending by major category (defense, Social Security, Medicare, Income Security, Federal Retirement, etc.) going back to 1962.</div><div class="surl">whitehouse.gov/omb/budget/historical-tables</div></div>
-    <div class="source-item"><div class="sname">OMB Historical Tables — Table 4.1: Outlays by Agency</div><div class="sdesc">Agency-level historical spending (VA, HHS, DoEd, DoT, DHS) going back to 1962.</div><div class="surl">whitehouse.gov/omb/budget/historical-tables</div></div>
-    <div class="source-item"><div class="sname">OMB Historical Tables — Table 7.1: Federal Debt at End of Year</div><div class="sdesc">Total federal debt outstanding 1940–2025. Used for the debt overlay on the Net Interest trend chart.</div><div class="surl">whitehouse.gov/omb/budget/historical-tables</div></div>
+    <div class="source-item"><div class="sname">OMB Historical Tables — Table 1.1: Summary of Receipts, Outlays, and Surpluses or Deficits</div><div class="sdesc">Primary source for all annual totals. Used for total outlays, revenues, and deficit/surplus by fiscal year (1962–2025).</div><div class="surl"><a href="https://whitehouse.gov/omb/budget/historical-tables" target="_blank" rel="noopener">whitehouse.gov/omb/budget/historical-tables</a></div></div>
+    <div class="source-item"><div class="sname">OMB Historical Tables — Table 3.2: Outlays by Function and Subfunction</div><div class="sdesc">Spending by major category (defense, Social Security, Medicare, Income Security, Federal Retirement, etc.) going back to 1962.</div><div class="surl"><a href="https://whitehouse.gov/omb/budget/historical-tables" target="_blank" rel="noopener">whitehouse.gov/omb/budget/historical-tables</a></div></div>
+    <div class="source-item"><div class="sname">OMB Historical Tables — Table 4.1: Outlays by Agency</div><div class="sdesc">Agency-level historical spending (VA, HHS, DoEd, DoT, DHS) going back to 1962.</div><div class="surl"><a href="https://whitehouse.gov/omb/budget/historical-tables" target="_blank" rel="noopener">whitehouse.gov/omb/budget/historical-tables</a></div></div>
+    <div class="source-item"><div class="sname">OMB Historical Tables — Table 7.1: Federal Debt at End of Year</div><div class="sdesc">Total federal debt outstanding 1940–2025. Used for the debt overlay on the Net Interest trend chart.</div><div class="surl"><a href="https://whitehouse.gov/omb/budget/historical-tables" target="_blank" rel="noopener">whitehouse.gov/omb/budget/historical-tables</a></div></div>
   </div>
   <div class="source-group">
     <h3>Budget Projections</h3>
-    <div class="source-item"><div class="sname">CBO Budget &amp; Economic Outlook, February 2026</div><div class="sdesc">Primary source for all 10-year projections (2026–2036). Incorporates effects of the One Big Beautiful Bill Act (OBBB, July 2025).</div><div class="surl">cbo.gov/publication/budget-economic-outlook</div></div>
-    <div class="source-item"><div class="sname">CBO Long-Term Budget Outlook</div><div class="sdesc">Longer-horizon % of GDP projections and structural deficit analysis.</div><div class="surl">cbo.gov/topics/budget/long-term-budget-projections</div></div>
+    <div class="source-item"><div class="sname">CBO Budget &amp; Economic Outlook, February 2026</div><div class="sdesc">Primary source for all 10-year projections (2026–2036). Incorporates effects of the One Big Beautiful Bill Act (OBBB, July 2025).</div><div class="surl"><a href="https://www.cbo.gov/publication/budget-economic-outlook" target="_blank" rel="noopener">cbo.gov/publication/budget-economic-outlook</a></div></div>
+    <div class="source-item"><div class="sname">CBO Long-Term Budget Outlook</div><div class="sdesc">Longer-horizon % of GDP projections and structural deficit analysis.</div><div class="surl"><a href="https://www.cbo.gov/topics/budget/long-term-budget-projections" target="_blank" rel="noopener">cbo.gov/topics/budget/long-term-budget-projections</a></div></div>
   </div>
   <div class="source-group">
     <h3>Revenue &amp; Tax Distribution</h3>
-    <div class="source-item"><div class="sname">OMB Historical Tables — Tables 2.1–2.5: Receipts by Source</div><div class="sdesc">Federal revenue by type (individual income, payroll, corporate, excise, tariffs) going back to 1934.</div><div class="surl">whitehouse.gov/omb/budget/historical-tables</div></div>
-    <div class="source-item"><div class="sname">IRS Statistics of Income (SOI) — Tax Year 2023 <span style="color:var(--red);font-weight:600">[TY2023 — most recent available]</span></div><div class="sdesc">Individual income tax distribution by percentile: share of AGI, share of taxes paid, effective rates. Typically 2 years behind the current fiscal year. Used for "Who Pays?" panels.</div><div class="surl">irs.gov/statistics/soi-tax-stats-individual-income-tax-returns</div></div>
-    <div class="source-item"><div class="sname">CBO Distribution of Federal Taxes, 2022</div><div class="sdesc">Payroll tax incidence by income quintile including effective rates. Used for "Who Pays?" payroll panel.</div><div class="surl">cbo.gov/publication/distribution-household-income</div></div>
-    <div class="source-item"><div class="sname">IRS SOI Publication 16 — Corporation Income Tax Returns, Tax Year 2022</div><div class="sdesc">Corporate income tax liability by industry sector. Scaled to FY2025 actuals.</div><div class="surl">irs.gov/statistics/soi-tax-stats-corporation-tax-statistics</div></div>
+    <div class="source-item"><div class="sname">OMB Historical Tables — Tables 2.1–2.5: Receipts by Source</div><div class="sdesc">Federal revenue by type (individual income, payroll, corporate, excise, tariffs) going back to 1934.</div><div class="surl"><a href="https://whitehouse.gov/omb/budget/historical-tables" target="_blank" rel="noopener">whitehouse.gov/omb/budget/historical-tables</a></div></div>
+    <div class="source-item"><div class="sname">IRS Statistics of Income (SOI) — Tax Year 2023 <span style="color:var(--red);font-weight:600">[TY2023 — most recent available]</span></div><div class="sdesc">Individual income tax distribution by percentile: share of AGI, share of taxes paid, effective rates. Typically 2 years behind the current fiscal year. Used for "Who Pays?" panels.</div><div class="surl"><a href="https://www.irs.gov/statistics/soi-tax-stats-individual-income-tax-returns" target="_blank" rel="noopener">irs.gov/statistics/soi-tax-stats-individual-income-tax-returns</a></div></div>
+    <div class="source-item"><div class="sname">CBO Distribution of Federal Taxes, 2022</div><div class="sdesc">Payroll tax incidence by income quintile including effective rates. Used for "Who Pays?" payroll panel.</div><div class="surl"><a href="https://www.cbo.gov/publication/distribution-household-income" target="_blank" rel="noopener">cbo.gov/publication/distribution-household-income</a></div></div>
+    <div class="source-item"><div class="sname">IRS SOI Publication 16 — Corporation Income Tax Returns, Tax Year 2022</div><div class="sdesc">Corporate income tax liability by industry sector. Scaled to FY2025 actuals.</div><div class="surl"><a href="https://www.irs.gov/statistics/soi-tax-stats-corporation-tax-statistics" target="_blank" rel="noopener">irs.gov/statistics/soi-tax-stats-corporation-tax-statistics</a></div></div>
   </div>
   <div class="source-group">
     <h3>Program-Specific Sources</h3>
-    <div class="source-item"><div class="sname">CMS National Health Expenditure Accounts</div><div class="sdesc">Medicare and Medicaid historical spending detail (Parts A, B, C, D and Medicaid subcomponents).</div><div class="surl">cms.gov/data-research/statistics-trends-and-reports/national-health-expenditure-data</div></div>
-    <div class="source-item"><div class="sname">NIH Office of Budget</div><div class="sdesc">NIH annual appropriations history (1980–2025) and FY2026 proposed budget.</div><div class="surl">officeofbudget.od.nih.gov</div></div>
-    <div class="source-item"><div class="sname">CDC Budget Justifications to Congress</div><div class="sdesc">CDC annual discretionary appropriations history (1980–2025).</div><div class="surl">cdc.gov/budget</div></div>
-    <div class="source-item"><div class="sname">DoD Comptroller Historical Budget Data</div><div class="sdesc">Defense spending by title (Personnel, O&amp;M, Procurement, RDT&amp;E) from 1980.</div><div class="surl">comptroller.defense.gov/Budget-Materials</div></div>
-    <div class="source-item"><div class="sname">VA Budget Submission to Congress</div><div class="sdesc">Veterans Affairs discretionary and mandatory spending history.</div><div class="surl">va.gov/budget/products.asp</div></div>
+    <div class="source-item"><div class="sname">CMS National Health Expenditure Accounts</div><div class="sdesc">Medicare and Medicaid historical spending detail (Parts A, B, C, D and Medicaid subcomponents).</div><div class="surl"><a href="https://www.cms.gov/data-research/statistics-trends-and-reports/national-health-expenditure-data" target="_blank" rel="noopener">cms.gov/data-research/statistics-trends-and-reports/national-health-expenditure-data</a></div></div>
+    <div class="source-item"><div class="sname">NIH Office of Budget</div><div class="sdesc">NIH annual appropriations history (1980–2025) and FY2026 proposed budget.</div><div class="surl"><a href="https://officeofbudget.od.nih.gov" target="_blank" rel="noopener">officeofbudget.od.nih.gov</a></div></div>
+    <div class="source-item"><div class="sname">CDC Budget Justifications to Congress</div><div class="sdesc">CDC annual discretionary appropriations history (1980–2025).</div><div class="surl"><a href="https://www.cdc.gov/budget" target="_blank" rel="noopener">cdc.gov/budget</a></div></div>
+    <div class="source-item"><div class="sname">DoD Comptroller Historical Budget Data</div><div class="sdesc">Defense spending by title (Personnel, O&amp;M, Procurement, RDT&amp;E) from 1980.</div><div class="surl"><a href="https://comptroller.defense.gov/Budget-Materials/" target="_blank" rel="noopener">comptroller.defense.gov/Budget-Materials</a></div></div>
+    <div class="source-item"><div class="sname">VA Budget Submission to Congress</div><div class="sdesc">Veterans Affairs discretionary and mandatory spending history.</div><div class="surl"><a href="https://www.va.gov/budget/products.asp" target="_blank" rel="noopener">va.gov/budget/products.asp</a></div></div>
   </div>
   <div class="source-group">
     <h3>GDP &amp; Economic Data</h3>
-    <div class="source-item"><div class="sname">BEA National Income and Product Accounts (NIPA) — Table 1.1.5</div><div class="sdesc">Nominal GDP 1934–2025 used for all % of GDP calculations. Projected GDP 2026–2036 from CBO economic assumptions (Feb 2026).</div><div class="surl">bea.gov/data/gdp/gross-domestic-product</div></div>
-    <div class="source-item"><div class="sname">U.S. Treasury Fiscal Data — Historical Debt Outstanding</div><div class="sdesc">Total federal debt outstanding by fiscal year end, 1789–2025.</div><div class="surl">fiscaldata.treasury.gov/datasets/historical-debt-outstanding</div></div>
+    <div class="source-item"><div class="sname">BEA National Income and Product Accounts (NIPA) — Table 1.1.5</div><div class="sdesc">Nominal GDP 1934–2025 used for all % of GDP calculations. Projected GDP 2026–2036 from CBO economic assumptions (Feb 2026).</div><div class="surl"><a href="https://www.bea.gov/data/gdp/gross-domestic-product" target="_blank" rel="noopener">bea.gov/data/gdp/gross-domestic-product</a></div></div>
+    <div class="source-item"><div class="sname">U.S. Treasury Fiscal Data — Historical Debt Outstanding</div><div class="sdesc">Total federal debt outstanding by fiscal year end, 1789–2025.</div><div class="surl"><a href="https://fiscaldata.treasury.gov/datasets/historical-debt-outstanding" target="_blank" rel="noopener">fiscaldata.treasury.gov/datasets/historical-debt-outstanding</a></div></div>
   </div>
   <div class="source-group">
     <h3>Notes on Data</h3>

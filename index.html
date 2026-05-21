@@ -1,13 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-597NT7LVD8"></script>
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
-
-  gtag('config', 'G-597NT7LVD8');
+  gtag('config', 'G-XXXXXXXXXX');
 </script>
 <head>
 <meta charset="UTF-8">
@@ -225,6 +223,9 @@ footer p{font-size:12px;color:var(--text3)}
 
   /* Breadcrumb */
   .bc{font-size:10px;gap:3px}
+
+  /* INTL charts */
+  #intlTaxC,#intlDefC,#intlDebtC,#intlDefenseC,#intlHealthC,#intlEduC,#intlRDC{height:200px !important;width:100% !important}
 }
 
 @media(max-width:400px){
@@ -245,6 +246,7 @@ footer p{font-size:12px;color:var(--text3)}
     <a class="nav-link" onclick="showPage('spending')" href="#">Spending</a>
     <a class="nav-link" onclick="showPage('revenue')" href="#">Revenue</a>
     <a class="nav-link" onclick="showPage('deficit')" href="#">Deficit</a>
+    <a class="nav-link" onclick="showPage('intl')" href="#">INTL Comps</a>
     <a class="nav-link" onclick="showPage('sources')" href="#">Sources</a>
   </div>
   <div class="nav-fy">FY2025 Actuals · CBO Feb 2026</div>
@@ -271,6 +273,7 @@ footer p{font-size:12px;color:var(--text3)}
     <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem">
       <div class="card" style="cursor:pointer" onclick="showPage('spending')"><div class="card-label">01 — Spending</div><div style="font-family:var(--serif);font-size:20px;margin-bottom:.4rem">$7.0T in outlays</div><div style="font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:1rem">Mandatory programs (Social Security, Medicare, Medicaid) now consume 60% of all spending. Net interest approaches $1T. Drill into every subcategory with full historical trends.</div><div style="font-size:12px;color:var(--accent)">Explore spending →</div></div>
       <div class="card" style="cursor:pointer" onclick="showPage('revenue')"><div class="card-label">02 — Revenue</div><div style="font-family:var(--serif);font-size:20px;margin-bottom:.4rem">$5.2T in receipts</div><div style="font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:1rem">Individual income taxes ($2.7T) dominate. Tariffs surged 153% to $195B in FY2025. Includes "Who Pays?" distribution data by income group.</div><div style="font-size:12px;color:var(--accent)">Explore revenue →</div></div>
+      <div class="card" style="cursor:pointer" onclick="showPage('intl')"><div class="card-label">04 — INTL Comps</div><div style="font-family:var(--serif);font-size:20px;margin-bottom:.4rem">G7 Comparisons</div><div style="font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:1rem">How the U.S. compares to Canada, France, Germany, Italy, Japan, and the UK on taxes, deficits, debt, defense, health, education, and R&D spending.</div><div style="font-size:12px;color:var(--accent)">Explore comparisons →</div></div>
       <div class="card" style="cursor:pointer" onclick="showPage('deficit')"><div class="card-label">03 — Deficit &amp; Debt</div><div style="font-family:var(--serif);font-size:20px;margin-bottom:.4rem">−$1.8T deficit</div><div style="font-size:12px;color:var(--text2);line-height:1.6;margin-bottom:1rem">The 5.9% of GDP deficit is well above the 50-year average of 3.8%. CBO projects deficits widening to 6.7% of GDP by 2036.</div><div style="font-size:12px;color:var(--accent)">Explore deficit →</div></div>
     </div>
   </div>
@@ -387,6 +390,106 @@ footer p{font-size:12px;color:var(--text3)}
 </div>
 </div>
 
+<!-- INTL COMPS PAGE -->
+<div id="page-intl" style="display:none">
+<div class="sources-hero">
+  <div style="font-family:var(--mono);font-size:11px;color:var(--accent);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.5rem">G7 International Comparisons</div>
+  <h1>How the U.S. Compares</h1>
+  <p style="font-size:14px;color:var(--text2);max-width:680px;line-height:1.7">Fiscal and spending comparisons across G7 nations (Canada, France, Germany, Italy, Japan, UK, USA). Data sourced from OECD, IMF, and NATO — all on a consistent all-government basis for comparability.</p>
+</div>
+<div class="section">
+  <!-- Sub-nav -->
+  <div style="display:flex;gap:8px;margin-bottom:1.75rem;border-bottom:1px solid var(--border2);padding-bottom:.75rem">
+    <button id="intl-tab-fiscal" class="tb act" onclick="intlShowTab('fiscal')">Revenue &amp; Fiscal</button>
+    <button id="intl-tab-spending" class="tb" onclick="intlShowTab('spending')">Spending</button>
+  </div>
+
+  <!-- REVENUE & FISCAL TAB -->
+  <div id="intl-fiscal">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.25rem">
+      <!-- Chart 1: Tax Revenue % GDP -->
+      <div class="card">
+        <div class="card-label">Total Tax Revenue as % of GDP (2015–2024)</div>
+        <div style="font-size:11px;color:var(--text3);margin-bottom:.5rem">All government levels including social contributions. Source: OECD Revenue Statistics 2025, Table 3.1.</div>
+        <div style="font-size:10px;background:var(--navy3);border:1px solid var(--border2);border-radius:4px;padding:5px 8px;margin-bottom:.6rem;color:var(--text3);line-height:1.5"><strong style="color:var(--amber)">Note:</strong> U.S. domestic figures often cite federal-only (~17%), which is not comparable to other countries' all-government totals. This chart uses all-government totals for all countries.</div>
+        <div style="position:relative;height:260px"><canvas id="intlTaxC"></canvas></div>
+      </div>
+      <!-- Chart 2: Deficit % GDP -->
+      <div class="card">
+        <div class="card-label">Annual Fiscal Deficit as % of GDP (2015–2024)</div>
+        <div style="font-size:11px;color:var(--text3);margin-bottom:.5rem">General government balance. Y-axis inverted: larger deficits appear at top. Source: IMF WEO October 2024.</div>
+        <div style="font-size:10px;background:var(--navy3);border:1px solid var(--border2);border-radius:4px;padding:5px 8px;margin-bottom:.6rem;color:var(--text3);line-height:1.5"><strong style="color:var(--amber)">Note:</strong> U.S. 2023 deficit was partly inflated by a student loan accounting adjustment (~1.3pp). Germany ran surpluses 2015–2019 before COVID.</div>
+        <div style="position:relative;height:260px"><canvas id="intlDefC"></canvas></div>
+      </div>
+    </div>
+    <!-- Chart 3: Total Debt -->
+    <div class="card" style="margin-bottom:1.25rem">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;margin-bottom:.25rem">
+        <div class="card-label" style="margin-bottom:0">Total Government Debt (2015–2024)</div>
+        <div style="display:flex;gap:5px">
+          <button class="wt act" id="intlDebt-gdp" onclick="intlDebtToggle('gdp')">% of GDP</button>
+          <button class="wt" id="intlDebt-nom" onclick="intlDebtToggle('nom')">Nominal USD Trillions</button>
+        </div>
+      </div>
+      <div style="font-size:11px;color:var(--text3);margin-bottom:.5rem">Gross government debt. Source: IMF WEO October 2024.</div>
+      <div style="font-size:10px;background:var(--navy3);border:1px solid var(--border2);border-radius:4px;padding:5px 8px;margin-bottom:.6rem;color:var(--text3);line-height:1.5"><strong style="color:var(--amber)">Note:</strong> Japan's gross debt (~255% GDP) significantly overstates net obligations; Japan holds large financial assets, making net debt ~155% GDP. U.S. nominal debt ($35.7T in 2024) exceeds the other six G7 members combined.</div>
+      <div style="position:relative;height:280px"><canvas id="intlDebtC"></canvas></div>
+    </div>
+  </div>
+
+  <!-- SPENDING TAB -->
+  <div id="intl-spending" style="display:none">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.25rem">
+      <!-- Chart 4: Defense -->
+      <div class="card">
+        <div class="card-label">Defense Spending as % of GDP (2015–2025)</div>
+        <div style="font-size:11px;color:var(--text3);margin-bottom:.5rem">Source: NATO June 2025 estimates; SIPRI for Japan (not a NATO member).</div>
+        <div style="font-size:10px;background:var(--navy3);border:1px solid var(--border2);border-radius:4px;padding:5px 8px;margin-bottom:.6rem;color:var(--text3);line-height:1.5"><strong style="color:var(--amber)">Note:</strong> U.S. at 3.4% is roughly double the 2% NATO target. NATO's new target is 3.5% core defense by 2035.</div>
+        <div style="position:relative;height:260px"><canvas id="intlDefenseC"></canvas></div>
+      </div>
+      <!-- Chart 5: Health -->
+      <div class="card">
+        <div class="card-label">Total Health Spending as % of GDP (2015–2023)</div>
+        <div style="font-size:11px;color:var(--text3);margin-bottom:.5rem">Total health expenditure (public + private). Source: OECD Health at a Glance 2025.</div>
+        <div style="font-size:10px;background:var(--navy3);border:1px solid var(--border2);border-radius:4px;padding:5px 8px;margin-bottom:.6rem;color:var(--text3);line-height:1.5"><strong style="color:var(--amber)">Note:</strong> U.S. at 17.2% is nearly double Germany (12.3%), yet the U.S. has the lowest G7 life expectancy (78.4 yrs) and ~27.6M uninsured. Public share varies widely: UK ~81%, France ~77%, USA ~48%.</div>
+        <div style="position:relative;height:260px"><canvas id="intlHealthC"></canvas></div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem">
+      <!-- Chart 6: Education -->
+      <div class="card">
+        <div class="card-label">Public Education Spending as % of GDP (2015–2022)</div>
+        <div style="font-size:11px;color:var(--text3);margin-bottom:.5rem">Government education expenditure all levels. Source: OECD Education at a Glance 2025.</div>
+        <div style="font-size:10px;background:var(--navy3);border:1px solid var(--border2);border-radius:4px;padding:5px 8px;margin-bottom:.6rem;color:var(--text3);line-height:1.5"><strong style="color:var(--amber)">Note:</strong> G7 clustered at 3.8–5.8%. U.S. figure is slightly inflated by university R&amp;D. Japan's low public figure is offset by high private education spending.</div>
+        <div style="position:relative;height:260px"><canvas id="intlEduC"></canvas></div>
+      </div>
+      <!-- Chart 7: R&D -->
+      <div class="card">
+        <div class="card-label">Total R&amp;D Spending (GERD) as % of GDP (2015–2023)</div>
+        <div style="font-size:11px;color:var(--text3);margin-bottom:.5rem">Gross expenditure on R&amp;D, public + private combined. Source: OECD MSTI March 2025.</div>
+        <div style="font-size:10px;background:var(--navy3);border:1px solid var(--border2);border-radius:4px;padding:5px 8px;margin-bottom:.6rem;color:var(--text3);line-height:1.5"><strong style="color:var(--amber)">Note:</strong> U.S. leads G7 at 3.6%. UK at 1.9% is frequently cited as a structural weakness. Italy and Canada fall below the OECD average of 2.7%.</div>
+        <div style="position:relative;height:260px"><canvas id="intlRDC"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Country legend -->
+  <div style="margin-top:1.25rem;padding:.75rem 1rem;background:var(--navy2);border:1px solid var(--border);border-radius:8px">
+    <div style="font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);margin-bottom:.5rem">Country color key</div>
+    <div style="display:flex;flex-wrap:wrap;gap:10px 18px">
+      <span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text)"><span style="width:24px;height:3px;background:#5ba4cf;display:inline-block;border-radius:2px"></span>USA</span>
+      <span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text)"><span style="width:24px;height:3px;background:#e05c5c;display:inline-block;border-radius:2px"></span>UK</span>
+      <span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text)"><span style="width:24px;height:3px;background:#9b7fe8;display:inline-block;border-radius:2px"></span>France</span>
+      <span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text)"><span style="width:24px;height:3px;background:#5cb87a;display:inline-block;border-radius:2px"></span>Germany</span>
+      <span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text)"><span style="width:24px;height:3px;background:#e8a44a;display:inline-block;border-radius:2px"></span>Italy</span>
+      <span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text)"><span style="width:24px;height:3px;background:#d4537e;display:inline-block;border-radius:2px"></span>Canada</span>
+      <span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text)"><span style="width:24px;height:3px;background:#7a9bb5;display:inline-block;border-radius:2px"></span>Japan</span>
+    </div>
+    <div style="font-size:10px;color:var(--text3);margin-top:.4rem">USA shown with thicker line for emphasis. Dash patterns distinguish countries for accessibility.</div>
+  </div>
+</div>
+</div>
+
 <!-- SOURCES PAGE -->
 <div id="page-sources" style="display:none">
 <div class="sources-hero">
@@ -429,7 +532,17 @@ footer p{font-size:12px;color:var(--text3)}
     <div class="source-item"><div class="sname">U.S. Treasury Fiscal Data — Historical Debt Outstanding</div><div class="sdesc">Total federal debt outstanding by fiscal year end, 1789–2025.</div><div class="surl"><a href="https://fiscaldata.treasury.gov/datasets/historical-debt-outstanding" target="_blank" rel="noopener">fiscaldata.treasury.gov/datasets/historical-debt-outstanding</a></div></div>
   </div>
   <div class="source-group">
-    <h3>Notes on Data</h3>
+    <h3>International Comparisons</h3>
+    <div class="source-item"><div class="sname">OECD Revenue Statistics 2025, Table 3.1</div><div class="sdesc">Tax revenue as % of GDP for all OECD members including all G7, all government levels including social contributions (2015–2024). Used for Chart 1 on the INTL Comps page.</div><div class="surl"><a href="https://www.oecd.org/en/topics/sub-issues/tax-revenue-statistics.html" target="_blank" rel="noopener">oecd.org/tax-revenue-statistics</a></div></div>
+    <div class="source-item"><div class="sname">IMF World Economic Outlook (WEO), October 2024</div><div class="sdesc">General government fiscal balance (% GDP) and gross government debt (% GDP and nominal USD) for all G7 countries (2015–2024). Used for deficit and debt charts.</div><div class="surl"><a href="https://www.imf.org/en/Publications/WEO" target="_blank" rel="noopener">imf.org/en/Publications/WEO</a></div></div>
+    <div class="source-item"><div class="sname">NATO Defence Expenditure, June 2025</div><div class="sdesc">Official NATO estimates of defence spending as % of GDP for all NATO G7 members (2015–2025). Japan is not a NATO member; Japan figures from SIPRI Military Expenditure Database.</div><div class="surl"><a href="https://www.nato.int/cps/en/natohq/topics_49198.htm" target="_blank" rel="noopener">nato.int — Defence Expenditure</a></div></div>
+    <div class="source-item"><div class="sname">SIPRI Military Expenditure Database</div><div class="sdesc">Used for Japan defence spending (not a NATO member). Stockholm International Peace Research Institute.</div><div class="surl"><a href="https://www.sipri.org/databases/milex" target="_blank" rel="noopener">sipri.org/databases/milex</a></div></div>
+    <div class="source-item"><div class="sname">OECD Health at a Glance 2025</div><div class="sdesc">Total health expenditure (public + private) as % of GDP for G7 (2015–2023). Public/private split and life expectancy data also from this source.</div><div class="surl"><a href="https://www.oecd.org/health/health-at-a-glance.htm" target="_blank" rel="noopener">oecd.org/health/health-at-a-glance</a></div></div>
+    <div class="source-item"><div class="sname">OECD Education at a Glance 2025</div><div class="sdesc">Government expenditure on education as % of GDP for G7 (2015–2022, most recent available).</div><div class="surl"><a href="https://www.oecd.org/education/education-at-a-glance/" target="_blank" rel="noopener">oecd.org/education/education-at-a-glance</a></div></div>
+    <div class="source-item"><div class="sname">OECD Main Science and Technology Indicators (MSTI), March 2025</div><div class="sdesc">Gross Expenditure on R&amp;D (GERD) as % of GDP, public + private combined, for G7 (2015–2023). Government-only R&amp;D is not consistently defined across countries so total GERD is used for comparability.</div><div class="surl"><a href="https://www.oecd.org/sti/msti.htm" target="_blank" rel="noopener">oecd.org/sti/msti</a></div></div>
+    <div class="source-item"><div class="sname">Comparability Note — Tax Revenue</div><div class="sdesc">U.S. domestic sources typically report federal revenue only (~17% of GDP). This is not comparable to other countries' all-government totals. The INTL Comps page uses OECD all-government totals for all countries. The two figures should not be combined arithmetically.</div></div>
+  </div>
+  <div class="source-group">
     <div class="source-item"><div class="sname">Payroll Tax Coverage</div><div class="sdesc">All payroll tax figures include both the employee and employer share of FICA contributions (Social Security: 6.2% each = 12.4% combined; Medicare: 1.45% each = 2.9% combined). Employers remit both shares to the IRS.</div></div>
     <div class="source-item"><div class="sname">Fiscal Year Convention</div><div class="sdesc">The U.S. federal fiscal year runs October 1 – September 30. A new president inherits ~9 months of the prior administration's budget framework in their first year.</div></div>
     <div class="source-item"><div class="sname">Projection Methodology</div><div class="sdesc">All projections use CBO's February 2026 baseline, incorporating enacted legislation including the One Big Beautiful Bill Act (signed July 2025). Projections are baselines, not forecasts.</div></div>
@@ -454,16 +567,17 @@ const EC=['#4a9eff','#1fba82','#d4973a','#e8503a','#d4537e','#639922','#7f77dd',
 const RC=['#4a9eff','#1fba82','#d4973a','#e8503a','#7f77dd','#d4537e','#639922','#888780'];
 
 // ── ROUTING ──────────────────────────────────────────────────────────────────
-const PAGES=['main','spending','revenue','deficit','sources'];
+const PAGES=['main','spending','revenue','deficit','intl','sources'];
 function showPage(id){
   PAGES.forEach(p=>document.getElementById('page-'+p).style.display=p===id?'block':'none');
   document.querySelectorAll('.nav-link').forEach(l=>l.classList.toggle('active',l.getAttribute('onclick').includes("'"+id+"'")));
   if(id==='spending'&&!expInited){initExp();expInited=true;}
   if(id==='revenue'&&!revInited){initRev();revInited=true;}
   if(id==='deficit'&&!defInited){initDef();defInited=true;}
+  if(id==='intl'&&!intlInited){initIntl();intlInited=true;}
   window.scrollTo(0,0);
 }
-let expInited=false,revInited=false,defInited=false;
+let expInited=false,revInited=false,defInited=false,intlInited=false;
 
 // ── EXPENDITURE EXPLORER ─────────────────────────────────────────────────────
 const EXP_D={
@@ -764,6 +878,217 @@ function defSetV(v){
 }
 function defToggleP(){defProjOn=!defProjOn;const b=document.getElementById('def-btn-proj');b.style.background=defProjOn?'var(--amber)':'transparent';b.style.color=defProjOn?'var(--navy)':'var(--amber)';defBuildChart();}
 window.defSetV=defSetV;window.defToggleP=defToggleP;
+// ── INTL COMPS ───────────────────────────────────────────────────────────────
+const INTL_COUNTRIES=[
+  {id:'usa',label:'USA',color:'#5ba4cf',width:3,dash:[]},
+  {id:'uk', label:'UK', color:'#e05c5c',width:1.5,dash:[6,3]},
+  {id:'france',label:'France',color:'#9b7fe8',width:1.5,dash:[4,2]},
+  {id:'germany',label:'Germany',color:'#5cb87a',width:1.5,dash:[8,3]},
+  {id:'italy',label:'Italy',color:'#e8a44a',width:1.5,dash:[3,3]},
+  {id:'canada',label:'Canada',color:'#d4537e',width:1.5,dash:[6,2,2,2]},
+  {id:'japan',label:'Japan',color:'#7a9bb5',width:1.5,dash:[2,2]}
+];
+
+// Chart 1: Tax Revenue % GDP (OECD Revenue Statistics 2025, Table 3.1)
+const INTL_TAX={
+  years:[2015,2016,2017,2018,2019,2020,2021,2022,2023,2024],
+  usa:  [25.9,26.0,26.8,26.8,24.5,25.5,26.6,27.7,27.1,25.6],
+  uk:   [32.4,32.8,33.4,33.5,33.5,33.2,34.6,35.3,35.3,35.1],
+  france:[45.0,45.4,46.2,46.1,45.0,44.5,45.1,45.3,44.8,43.5],
+  germany:[36.6,37.0,37.5,38.2,38.8,37.3,38.4,39.3,38.4,37.8],
+  italy:[42.7,42.4,42.2,41.7,42.3,42.8,43.0,43.2,43.0,42.8],
+  canada:[32.7,32.5,33.0,33.0,33.0,34.4,33.3,33.0,33.1,33.2],
+  japan:[30.6,30.6,30.7,31.4,31.7,31.8,32.7,32.5,32.4,32.2]
+};
+
+// Chart 2: Fiscal Deficit % GDP (IMF WEO Oct 2024) — negative = deficit
+const INTL_DEF={
+  years:[2015,2016,2017,2018,2019,2020,2021,2022,2023,2024],
+  usa:  [-3.5,-4.3,-3.4,-4.2,-4.7,-14.7,-11.0,-4.1,-8.7,-7.1],
+  uk:   [-4.5,-3.3,-2.5,-2.3,-2.5,-12.8,-7.9,-5.4,-5.0,-4.6],
+  france:[-3.6,-3.6,-3.0,-2.3,-3.1,-9.0,-6.5,-4.8,-5.5,-5.5],
+  germany:[-0.6,0.9,1.4,1.8,1.5,-4.3,-3.7,-2.5,-2.5,-1.9],
+  italy:[-2.6,-2.4,-2.4,-2.2,-1.5,-9.5,-8.9,-8.0,-7.2,-4.4],
+  canada:[-0.1,0.0,-0.4,0.2,-0.3,-10.9,-4.7,-0.6,-0.2,-1.3],
+  japan:[-3.8,-3.7,-3.1,-2.5,-3.2,-9.1,-6.3,-5.6,-5.3,-4.8]
+};
+
+// Chart 3: Total Debt % GDP (IMF WEO Oct 2024)
+const INTL_DEBT_GDP={
+  years:[2015,2016,2017,2018,2019,2020,2021,2022,2023,2024],
+  usa:  [104.8,106.6,105.9,106.8,108.7,130.7,126.1,121.6,122.3,123.8],
+  uk:   [87.9,87.8,87.1,85.8,85.4,103.2,104.2,101.1,103.8,101.2],
+  france:[95.6,98.0,98.4,98.1,97.4,114.1,112.6,111.6,109.9,110.6],
+  germany:[71.2,68.5,65.0,61.8,59.7,68.9,69.7,66.5,63.6,62.7],
+  italy: [135.3,134.8,134.3,134.8,134.8,154.8,149.9,141.7,137.3,134.6],
+  canada:[91.0,91.5,89.8,89.0,87.0,117.6,113.1,106.2,107.4,107.8],
+  japan: [228.7,232.5,231.4,232.8,235.0,258.7,255.4,261.3,255.2,252.4]
+};
+// Nominal debt USD trillions (approx from IMF)
+const INTL_DEBT_NOM={
+  years:[2015,2016,2017,2018,2019,2020,2021,2022,2023,2024],
+  usa:  [18.1,19.4,20.2,21.6,23.0,27.7,28.4,24.9,26.9,28.9],
+  uk:   [2.15,2.23,2.37,2.42,2.55,2.97,2.97,2.58,2.74,2.75],
+  france:[2.47,2.54,2.61,2.71,2.87,3.31,3.25,2.89,3.10,3.25],
+  germany:[1.92,1.92,2.02,2.06,2.11,2.43,2.48,2.02,2.27,2.38],
+  italy: [2.36,2.40,2.49,2.57,2.68,3.07,3.00,2.47,2.81,2.97],
+  canada:[1.55,1.53,1.64,1.67,1.72,2.05,2.10,1.80,2.10,2.20],
+  japan: [10.16,10.27,10.68,11.35,11.86,12.58,12.64,7.96,9.21,9.50]
+};
+
+// Chart 4: Defense % GDP (NATO June 2025; SIPRI for Japan)
+const INTL_DEFENSE={
+  years:[2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025],
+  usa:  [3.3,3.2,3.1,3.1,3.4,3.7,3.5,3.5,3.4,3.4,3.4],
+  uk:   [2.0,1.9,1.8,1.8,1.7,2.2,2.3,2.2,2.3,2.3,2.5],
+  france:[1.8,1.8,1.8,1.8,1.9,2.1,2.1,2.1,2.1,2.1,2.1],
+  germany:[1.2,1.2,1.2,1.2,1.3,1.4,1.5,1.5,1.6,2.1,2.1],
+  italy:[1.0,1.1,1.1,1.2,1.2,1.4,1.5,1.5,1.5,1.5,1.6],
+  canada:[1.0,1.2,1.3,1.4,1.3,1.4,1.4,1.3,1.4,1.8,2.0],
+  japan:[1.0,1.0,0.9,0.9,0.9,1.0,1.0,1.1,1.2,1.4,1.6]
+};
+
+// Chart 5: Health % GDP (OECD Health at a Glance 2025)
+const INTL_HEALTH={
+  years:[2015,2016,2017,2018,2019,2020,2021,2022,2023],
+  usa:  [16.5,17.0,17.0,16.9,17.0,19.7,18.3,17.4,17.2],
+  uk:   [9.8,9.8,9.8,9.9,10.0,12.0,11.9,11.3,10.4],
+  france:[11.0,11.1,11.2,11.2,11.2,12.2,12.3,12.1,12.0],
+  germany:[11.0,11.1,11.3,11.5,11.7,12.9,12.9,12.7,12.3],
+  italy:[8.8,8.8,8.7,8.7,8.7,9.7,9.6,9.0,9.1],
+  canada:[10.5,10.5,10.5,10.5,10.8,13.0,12.7,12.0,11.9],
+  japan:[10.7,10.8,10.9,10.8,11.0,12.0,11.6,11.5,11.5]
+};
+
+// Chart 6: Public Education % GDP (OECD Education at a Glance 2025)
+const INTL_EDU={
+  years:[2015,2016,2017,2018,2019,2020,2021,2022],
+  usa:  [5.4,5.4,5.2,5.2,5.1,5.5,5.5,5.3],
+  uk:   [5.2,5.1,5.0,4.7,4.7,5.3,5.4,5.1],
+  france:[5.4,5.4,5.4,5.3,5.3,5.7,5.6,5.5],
+  germany:[4.3,4.4,4.4,4.5,4.5,4.8,4.9,4.8],
+  italy:[3.9,3.8,3.8,3.8,4.0,4.5,4.4,4.2],
+  canada:[5.3,5.3,5.3,5.2,5.2,6.0,5.9,5.8],
+  japan:[3.2,3.2,3.2,3.1,3.3,3.7,3.8,3.8]
+};
+
+// Chart 7: Total R&D (GERD) % GDP (OECD MSTI March 2025)
+const INTL_RD={
+  years:[2015,2016,2017,2018,2019,2020,2021,2022,2023],
+  usa:  [2.7,2.8,2.8,3.0,3.1,3.4,3.5,3.6,3.6],
+  uk:   [1.7,1.7,1.7,1.7,1.7,1.8,1.8,1.9,1.9],
+  france:[2.2,2.2,2.2,2.2,2.2,2.4,2.4,2.2,2.2],
+  germany:[2.9,2.9,3.0,3.1,3.2,3.1,3.1,3.1,3.1],
+  italy:[1.3,1.3,1.3,1.4,1.5,1.5,1.5,1.5,1.6],
+  canada:[1.6,1.5,1.5,1.6,1.7,1.8,1.8,1.8,1.7],
+  japan:[3.2,3.1,3.2,3.3,3.2,3.3,3.3,3.5,3.4]
+};
+
+let intlDebtMode='gdp';
+let intlCharts={};
+
+function intlMakeDatasets(data,yearsArr){
+  return INTL_COUNTRIES.map(c=>({
+    label:c.label,
+    data:yearsArr.map((y,i)=>data[c.id]?.[i]??null),
+    borderColor:c.color,
+    backgroundColor:'transparent',
+    borderWidth:c.width,
+    borderDash:c.dash,
+    pointRadius:c.id==='usa'?3:1.5,
+    pointHoverRadius:5,
+    tension:0.3,
+    fill:false,
+    spanGaps:true
+  }));
+}
+
+function intlMakeOpts(yLabel,invertY){
+  return {
+    responsive:true,maintainAspectRatio:false,
+    plugins:{
+      legend:{display:true,position:'bottom',labels:{font:{size:10},color:'#8fa4be',padding:10,boxWidth:20}},
+      tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+(ctx.parsed.y!==null?ctx.parsed.y.toFixed(1)+'%':'n/a')}}
+    },
+    scales:{
+      x:{ticks:{font:{size:10},color:'#4d6480'},grid:{color:'rgba(255,255,255,0.04)'}},
+      y:{
+        reverse:invertY||false,
+        ticks:{font:{size:10},color:'#4d6480',callback:v=>v.toFixed(1)+'%'},
+        grid:{color:'rgba(255,255,255,0.06)'},
+        title:{display:!!yLabel,text:yLabel||'',color:'#4d6480',font:{size:10}}
+      }
+    }
+  };
+}
+
+function intlBuildChart(canvasId,data,invertY,yLabel,tooltipFn){
+  if(intlCharts[canvasId])intlCharts[canvasId].destroy();
+  const ds=intlMakeDatasets(data,data.years);
+  const opts=intlMakeOpts(yLabel,invertY);
+  if(tooltipFn)opts.plugins.tooltip.callbacks.label=tooltipFn;
+  intlCharts[canvasId]=new Chart(document.getElementById(canvasId),{
+    type:'line',data:{labels:data.years.map(String),datasets:ds},options:opts
+  });
+}
+
+function intlBuildDebt(){
+  const d=intlDebtMode==='gdp'?INTL_DEBT_GDP:INTL_DEBT_NOM;
+  const isGdp=intlDebtMode==='gdp';
+  const tooltipFn=ctx=>{
+    const v=ctx.parsed.y;
+    return ctx.dataset.label+': '+(v!==null?(isGdp?v.toFixed(1)+'% GDP':'$'+v.toFixed(1)+'T'):'n/a');
+  };
+  if(intlCharts['intlDebtC'])intlCharts['intlDebtC'].destroy();
+  const ds=intlMakeDatasets(d,d.years);
+  const opts={
+    responsive:true,maintainAspectRatio:false,
+    plugins:{
+      legend:{display:true,position:'bottom',labels:{font:{size:10},color:'#8fa4be',padding:10,boxWidth:20}},
+      tooltip:{callbacks:{label:tooltipFn}}
+    },
+    scales:{
+      x:{ticks:{font:{size:10},color:'#4d6480'},grid:{color:'rgba(255,255,255,0.04)'}},
+      y:{
+        ticks:{font:{size:10},color:'#4d6480',callback:v=>isGdp?v.toFixed(0)+'%':'$'+v.toFixed(1)+'T'},
+        grid:{color:'rgba(255,255,255,0.06)'}
+      }
+    }
+  };
+  intlCharts['intlDebtC']=new Chart(document.getElementById('intlDebtC'),{
+    type:'line',data:{labels:d.years.map(String),datasets:ds},options:opts
+  });
+}
+
+function intlDebtToggle(mode){
+  intlDebtMode=mode;
+  document.getElementById('intlDebt-gdp').classList.toggle('act',mode==='gdp');
+  document.getElementById('intlDebt-nom').classList.toggle('act',mode==='nom');
+  intlBuildDebt();
+}
+
+function intlShowTab(tab){
+  document.getElementById('intl-fiscal').style.display=tab==='fiscal'?'block':'none';
+  document.getElementById('intl-spending').style.display=tab==='spending'?'block':'none';
+  document.getElementById('intl-tab-fiscal').classList.toggle('act',tab==='fiscal');
+  document.getElementById('intl-tab-spending').classList.toggle('act',tab==='spending');
+  // lazy init spending charts
+  if(tab==='spending'&&!intlCharts['intlDefenseC']){
+    intlBuildChart('intlDefenseC',INTL_DEFENSE,false,'% of GDP');
+    intlBuildChart('intlHealthC',INTL_HEALTH,false,'% of GDP');
+    intlBuildChart('intlEduC',INTL_EDU,false,'% of GDP');
+    intlBuildChart('intlRDC',INTL_RD,false,'% of GDP');
+  }
+}
+window.intlShowTab=intlShowTab;
+window.intlDebtToggle=intlDebtToggle;
+
+function initIntl(){
+  intlBuildChart('intlTaxC',INTL_TAX,false,'% of GDP');
+  intlBuildChart('intlDefC',INTL_DEF,true,'% of GDP (inverted — larger deficits at top)');
+  intlBuildDebt();
+}
+
 showPage('main');
 </script>
 </body>

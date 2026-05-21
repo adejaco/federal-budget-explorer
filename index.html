@@ -225,7 +225,7 @@ footer p{font-size:12px;color:var(--text3)}
   .bc{font-size:10px;gap:3px}
 
   /* INTL charts */
-  #intlTaxC,#intlDefC,#intlDebtC,#intlDefenseC,#intlHealthC,#intlEduC,#intlRDC{height:200px !important;width:100% !important}
+  #intlTaxC,#intlDefC,#intlDebtC,#intlDefenseC,#intlHealthC,#intlEduC,#intlRDC,#intlGdpPcC,#intlGdpGrC,#intlUnempC,#intlInflC{height:200px !important;width:100% !important}
   /* Overview nav cards */
   #page-main .section > div[style*="grid-template-columns:repeat(2"]{grid-template-columns:1fr !important}
 }
@@ -238,9 +238,38 @@ footer p{font-size:12px;color:var(--text3)}
   .hero-stats{grid-template-columns:1fr 1fr}
   .ln{max-width:36vw}
 }
+/* ── INTL FULLSCREEN ───────────────────────────────────────────────── */
+.intl-card-wrap{position:relative;}
+.intl-expand-btn{position:absolute;top:8px;right:8px;z-index:10;background:rgba(10,15,30,0.8);border:1px solid var(--border);border-radius:5px;color:var(--text3);font-size:10px;padding:3px 8px;cursor:pointer;font-family:var(--sans);line-height:1.4;transition:all .15s;backdrop-filter:blur(4px);}
+.intl-expand-btn:hover{color:var(--accent);border-color:var(--accent);}
+#intl-fullscreen{position:fixed;inset:0;background:var(--navy);z-index:300;display:none;flex-direction:column;}
+#intl-fullscreen.open{display:flex;}
+#intl-fs-header{display:flex;align-items:center;gap:1rem;padding:.75rem 1.25rem;border-bottom:1px solid var(--border2);flex-shrink:0;flex-wrap:wrap;}
+#intl-fs-title{font-family:var(--serif);font-size:20px;color:var(--text);flex:1;min-width:0;}
+#intl-fs-subtitle{font-size:11px;color:var(--text3);font-family:var(--mono);}
+#intl-fs-back{display:flex;align-items:center;gap:6px;background:var(--navy3);border:1px solid var(--border);border-radius:6px;padding:6px 14px;font-size:12px;font-weight:500;color:var(--text2);cursor:pointer;transition:all .15s;font-family:var(--sans);white-space:nowrap;flex-shrink:0;}
+#intl-fs-back:hover{color:var(--text);border-color:var(--text3);}
+#intl-fs-note{padding:.4rem 1.25rem;font-size:10px;color:var(--text3);background:var(--navy2);border-bottom:1px solid var(--border2);line-height:1.6;flex-shrink:0;}
+#intl-fs-body{flex:1;padding:1rem 1.25rem 1.25rem;min-height:0;position:relative;}
+#intl-fs-canvas-wrap{position:relative;width:100%;height:100%;}
 </style>
 </head>
 <body>
+<!-- INTL FULLSCREEN OVERLAY -->
+<div id="intl-fullscreen">
+  <div id="intl-fs-header">
+    <button id="intl-fs-back" onclick="intlCloseFullscreen()">← Back</button>
+    <div style="flex:1;min-width:0">
+      <div id="intl-fs-title"></div>
+      <div id="intl-fs-subtitle"></div>
+    </div>
+  </div>
+  <div id="intl-fs-note"></div>
+  <div id="intl-fs-body">
+    <div id="intl-fs-canvas-wrap"><canvas id="intlFsC"></canvas></div>
+  </div>
+</div>
+
 <nav>
   <div class="nav-brand">U.S. 2025 Federal Budget <span>Explorer</span></div>
   <div class="nav-links">
@@ -398,13 +427,26 @@ footer p{font-size:12px;color:var(--text3)}
 <div class="sources-hero">
   <div style="font-family:var(--mono);font-size:11px;color:var(--accent);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.5rem">G7 International Comparisons</div>
   <h1>How the U.S. Compares</h1>
-  <p style="font-size:14px;color:var(--text2);max-width:680px;line-height:1.7">Fiscal and spending comparisons across G7 nations (Canada, France, Germany, Italy, Japan, UK, USA). Data sourced from OECD, IMF, and NATO — all on a consistent all-government basis for comparability.</p>
+  <p style="font-size:14px;color:var(--text2);max-width:680px;line-height:1.7">Fiscal and spending comparisons across OECD nations. Data sourced from OECD, IMF, and NATO — all on a consistent all-government basis. Select a region group to change which countries appear on all charts.</p>
 </div>
 <div class="section">
+  <!-- Region selector -->
+  <div style="margin-bottom:1.25rem;padding:.75rem 1rem;background:var(--navy2);border:1px solid var(--border);border-radius:8px">
+    <div style="font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--text3);margin-bottom:.5rem">Region / Country Group — USA always shown as anchor</div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap" id="intl-region-btns">
+      <button class="tb act" id="intl-rgn-europe" onclick="intlSetRegion('europe')">🌍 Europe</button>
+      <button class="tb" id="intl-rgn-americas" onclick="intlSetRegion('americas')">🌎 Americas</button>
+      <button class="tb" id="intl-rgn-asia" onclick="intlSetRegion('asia')">🌏 Asia-Pacific</button>
+      <button class="tb" id="intl-rgn-g7" onclick="intlSetRegion('g7')">G7</button>
+    </div>
+    <div id="intl-region-legend" style="display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:.6rem"></div>
+  </div>
+
   <!-- Sub-nav -->
   <div style="display:flex;gap:8px;margin-bottom:1.75rem;border-bottom:1px solid var(--border2);padding-bottom:.75rem">
     <button id="intl-tab-fiscal" class="tb act" onclick="intlShowTab('fiscal')">Revenue &amp; Fiscal</button>
     <button id="intl-tab-spending" class="tb" onclick="intlShowTab('spending')">Spending</button>
+    <button id="intl-tab-economic" class="tb" onclick="intlShowTab('economic')">Economic</button>
   </div>
 
   <!-- REVENUE & FISCAL TAB -->
@@ -414,14 +456,14 @@ footer p{font-size:12px;color:var(--text3)}
       <div class="card">
         <div class="card-label">Total Tax Revenue as % of GDP (2015–2024)</div>
         <div style="font-size:11px;color:var(--text3);margin-bottom:.5rem">All government levels including social contributions. Source: OECD Revenue Statistics 2025, Table 3.1.</div>
-        <div style="font-size:10px;background:var(--navy3);border:1px solid var(--border2);border-radius:4px;padding:5px 8px;margin-bottom:.6rem;color:var(--text3);line-height:1.5"><strong style="color:var(--amber)">Note:</strong> U.S. domestic figures often cite federal-only (~17%), which is not comparable to other countries' all-government totals. This chart uses all-government totals for all countries.</div>
+        <div style="font-size:10px;background:var(--navy3);border:1px solid var(--border2);border-radius:4px;padding:5px 8px;margin-bottom:.6rem;color:var(--text3);line-height:1.5"><strong style="color:var(--amber)">Note:</strong> U.S. domestic figures often cite federal-only (~17%), which is not comparable to other countries' all-government totals. This chart uses all-government totals for all countries. <strong style="color:var(--amber)">Norway:</strong> tax revenue elevated by petroleum sector; <strong style="color:var(--amber)">Chile:</strong> revenue sensitive to copper prices — fluctuations partly reflect commodity cycles rather than policy changes.</div>
         <div style="position:relative;height:260px"><canvas id="intlTaxC"></canvas></div>
       </div>
       <!-- Chart 2: Deficit % GDP -->
       <div class="card">
         <div class="card-label">Annual Fiscal Deficit as % of GDP (2015–2024)</div>
         <div style="font-size:11px;color:var(--text3);margin-bottom:.5rem">General government balance. Y-axis inverted: larger deficits appear at top. Source: IMF WEO October 2024.</div>
-        <div style="font-size:10px;background:var(--navy3);border:1px solid var(--border2);border-radius:4px;padding:5px 8px;margin-bottom:.6rem;color:var(--text3);line-height:1.5"><strong style="color:var(--amber)">Note:</strong> U.S. 2023 deficit was partly inflated by a student loan accounting adjustment (~1.3pp). Germany ran surpluses 2015–2019 before COVID.</div>
+        <div style="font-size:10px;background:var(--navy3);border:1px solid var(--border2);border-radius:4px;padding:5px 8px;margin-bottom:.6rem;color:var(--text3);line-height:1.5"><strong style="color:var(--amber)">Note:</strong> U.S. 2023 deficit was partly inflated by a student loan accounting adjustment (~1.3pp). Germany ran surpluses 2015–2019 before COVID. <strong style="color:var(--amber)">Norway:</strong> surpluses almost entirely driven by petroleum revenues and sovereign wealth fund returns — the underlying non-oil economy runs a structural deficit of ~9–10% of mainland GDP. The 2022 spike (+25.5%) reflects the Ukraine war energy price surge. <strong style="color:var(--amber)">Israel:</strong> swung from a +0.6% surplus in 2022 to −4.2% in 2023 and −6.8% in 2024 due to wartime spending following October 7, 2023.</div>
         <div style="position:relative;height:260px"><canvas id="intlDefC"></canvas></div>
       </div>
     </div>
@@ -435,7 +477,7 @@ footer p{font-size:12px;color:var(--text3)}
         </div>
       </div>
       <div style="font-size:11px;color:var(--text3);margin-bottom:.5rem">Gross government debt. Source: IMF WEO October 2024.</div>
-      <div style="font-size:10px;background:var(--navy3);border:1px solid var(--border2);border-radius:4px;padding:5px 8px;margin-bottom:.6rem;color:var(--text3);line-height:1.5"><strong style="color:var(--amber)">Note:</strong> Japan's gross debt (~255% GDP) significantly overstates net obligations; Japan holds large financial assets, making net debt ~155% GDP. U.S. nominal debt ($35.7T in 2024) exceeds the other six G7 members combined.</div>
+      <div style="font-size:10px;background:var(--navy3);border:1px solid var(--border2);border-radius:4px;padding:5px 8px;margin-bottom:.6rem;color:var(--text3);line-height:1.5"><strong style="color:var(--amber)">Note:</strong> Japan's gross debt (~255% GDP) significantly overstates net obligations; Japan holds large financial assets, making net debt ~155% GDP. U.S. nominal debt ($35.7T in 2024) exceeds the other six G7 members combined. <strong style="color:var(--amber)">Norway:</strong> gross debt (~55% GDP) is largely offset by the Government Pension Fund Global (GPFG), the world's largest sovereign wealth fund at ~$2.1T (~400% of mainland GDP) — Norway is a large net creditor nation despite the gross debt figure.</div>
       <div style="position:relative;height:280px"><canvas id="intlDebtC"></canvas></div>
     </div>
   </div>
@@ -447,7 +489,7 @@ footer p{font-size:12px;color:var(--text3)}
       <div class="card">
         <div class="card-label">Defense Spending as % of GDP (2015–2025)</div>
         <div style="font-size:11px;color:var(--text3);margin-bottom:.5rem">Source: NATO June 2025 estimates; SIPRI for Japan (not a NATO member).</div>
-        <div style="font-size:10px;background:var(--navy3);border:1px solid var(--border2);border-radius:4px;padding:5px 8px;margin-bottom:.6rem;color:var(--text3);line-height:1.5"><strong style="color:var(--amber)">Note:</strong> U.S. at 3.4% is roughly double the 2% NATO target. NATO's new target is 3.5% core defense by 2035.</div>
+        <div style="font-size:10px;background:var(--navy3);border:1px solid var(--border2);border-radius:4px;padding:5px 8px;margin-bottom:.6rem;color:var(--text3);line-height:1.5"><strong style="color:var(--amber)">Note:</strong> U.S. at 3.4% is roughly double the 2% NATO target. NATO's new target is 3.5% core defense by 2035. Sweden and Denmark have both committed to exceed 3% by 2026. <strong style="color:var(--amber)">Israel:</strong> defense spending surged from 5.2% of GDP in 2023 to 8.4–8.8% in 2024–25 due to the Gaza war and multi-front conflict — this is wartime mobilization, not a structural baseline. Pre-war (2022) level was ~4.5%.</div>
         <div style="position:relative;height:260px"><canvas id="intlDefenseC"></canvas></div>
       </div>
       <!-- Chart 5: Health -->
@@ -476,20 +518,43 @@ footer p{font-size:12px;color:var(--text3)}
     </div>
   </div>
 
-  <!-- Country legend -->
-  <div style="margin-top:1.25rem;padding:.75rem 1rem;background:var(--navy2);border:1px solid var(--border);border-radius:8px">
-    <div style="font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--text3);margin-bottom:.5rem">Country color key</div>
-    <div style="display:flex;flex-wrap:wrap;gap:10px 18px">
-      <span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text)"><span style="width:24px;height:3px;background:#5ba4cf;display:inline-block;border-radius:2px"></span>USA</span>
-      <span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text)"><span style="width:24px;height:3px;background:#e05c5c;display:inline-block;border-radius:2px"></span>UK</span>
-      <span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text)"><span style="width:24px;height:3px;background:#9b7fe8;display:inline-block;border-radius:2px"></span>France</span>
-      <span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text)"><span style="width:24px;height:3px;background:#5cb87a;display:inline-block;border-radius:2px"></span>Germany</span>
-      <span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text)"><span style="width:24px;height:3px;background:#e8a44a;display:inline-block;border-radius:2px"></span>Italy</span>
-      <span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text)"><span style="width:24px;height:3px;background:#d4537e;display:inline-block;border-radius:2px"></span>Canada</span>
-      <span style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text)"><span style="width:24px;height:3px;background:#7a9bb5;display:inline-block;border-radius:2px"></span>Japan</span>
+  <!-- ECONOMIC TAB -->
+  <div id="intl-economic" style="display:none">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.25rem">
+      <!-- Chart 8: GDP per capita PPP -->
+      <div class="card">
+        <div class="card-label">GDP per Capita, PPP (2015–2024)</div>
+        <div style="font-size:11px;color:var(--text3);margin-bottom:.5rem">Current international dollars (PPP-adjusted). Source: IMF WEO April 2026 / World Bank WDI.</div>
+        <div style="font-size:10px;background:var(--navy3);border:1px solid var(--border2);border-radius:4px;padding:5px 8px;margin-bottom:.6rem;color:var(--text3);line-height:1.5"><strong style="color:var(--amber)">Note:</strong> PPP adjusts for price level differences across countries, giving a better measure of living standards than nominal GDP. Norway and Switzerland are elevated partly by oil wealth and financial sector wages respectively.</div>
+        <div style="position:relative;height:260px"><canvas id="intlGdpPcC"></canvas></div>
+      </div>
+      <!-- Chart 9: Real GDP growth -->
+      <div class="card">
+        <div class="card-label">Real GDP Growth Rate (2015–2024)</div>
+        <div style="font-size:11px;color:var(--text3);margin-bottom:.5rem">Annual % change, inflation-adjusted. Source: IMF WEO April 2026.</div>
+        <div style="font-size:10px;background:var(--navy3);border:1px solid var(--border2);border-radius:4px;padding:5px 8px;margin-bottom:.6rem;color:var(--text3);line-height:1.5"><strong style="color:var(--amber)">Note:</strong> 2020 contraction visible across all countries (COVID). Ireland's 2015 figure (+25%) reflects multinational IP transfers and is excluded as a distortion. Costa Rica, South Korea, and Israel show the strongest long-run growth among peers.</div>
+        <div style="position:relative;height:260px"><canvas id="intlGdpGrC"></canvas></div>
+      </div>
     </div>
-    <div style="font-size:10px;color:var(--text3);margin-top:.4rem">USA shown with thicker line for emphasis. Dash patterns distinguish countries for accessibility.</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem">
+      <!-- Chart 10: Unemployment -->
+      <div class="card">
+        <div class="card-label">Unemployment Rate (2015–2024)</div>
+        <div style="font-size:11px;color:var(--text3);margin-bottom:.5rem">Standardized unemployment rate, % of labor force. Source: OECD Labour Statistics 2025.</div>
+        <div style="font-size:10px;background:var(--navy3);border:1px solid var(--border2);border-radius:4px;padding:5px 8px;margin-bottom:.6rem;color:var(--text3);line-height:1.5"><strong style="color:var(--amber)">Note:</strong> OECD standardized rates are comparable across countries. Colombia's headline rate understates true underemployment given high informality (~60% of workforce). Italy's high structural unemployment reflects regional north-south divergence.</div>
+        <div style="position:relative;height:260px"><canvas id="intlUnempC"></canvas></div>
+      </div>
+      <!-- Chart 11: Inflation -->
+      <div class="card">
+        <div class="card-label">Inflation Rate, CPI (2015–2024)</div>
+        <div style="font-size:11px;color:var(--text3);margin-bottom:.5rem">Annual % change in consumer prices. Source: IMF WEO April 2026 / OECD CPI Statistics.</div>
+        <div style="font-size:10px;background:var(--navy3);border:1px solid var(--border2);border-radius:4px;padding:5px 8px;margin-bottom:.6rem;color:var(--text3);line-height:1.5"><strong style="color:var(--amber)">Note:</strong> 2021–2023 inflation spike was global, driven by supply chain disruptions and energy prices post-COVID. Most OECD countries have returned to near-target rates by 2024. Switzerland maintained the lowest inflation throughout.</div>
+        <div style="position:relative;height:260px"><canvas id="intlInflC"></canvas></div>
+      </div>
+    </div>
   </div>
+
+
 </div>
 </div>
 
@@ -886,118 +951,241 @@ function defSetV(v){
 function defToggleP(){defProjOn=!defProjOn;const b=document.getElementById('def-btn-proj');b.style.background=defProjOn?'var(--amber)':'transparent';b.style.color=defProjOn?'var(--navy)':'var(--amber)';defBuildChart();}
 window.defSetV=defSetV;window.defToggleP=defToggleP;
 // ── INTL COMPS ───────────────────────────────────────────────────────────────
-const INTL_COUNTRIES=[
-  {id:'usa',label:'USA',color:'#5ba4cf',width:3,dash:[]},
-  {id:'uk', label:'UK', color:'#e05c5c',width:1.5,dash:[6,3]},
-  {id:'france',label:'France',color:'#9b7fe8',width:1.5,dash:[4,2]},
-  {id:'germany',label:'Germany',color:'#5cb87a',width:1.5,dash:[8,3]},
-  {id:'italy',label:'Italy',color:'#e8a44a',width:1.5,dash:[3,3]},
-  {id:'canada',label:'Canada',color:'#d4537e',width:1.5,dash:[6,2,2,2]},
-  {id:'japan',label:'Japan',color:'#7a9bb5',width:1.5,dash:[2,2]}
-];
 
-// Chart 1: Tax Revenue % GDP (OECD Revenue Statistics 2025, Table 3.1)
+// Master country registry — all countries across all regions
+const INTL_ALL_COUNTRIES={
+  usa:     {label:'USA',      color:'#5ba4cf',width:3,  dash:[]},
+  canada:  {label:'Canada',   color:'#d4537e',width:1.5,dash:[6,2,2,2]},
+  mexico:  {label:'Mexico',   color:'#e8a44a',width:1.5,dash:[4,2]},
+  chile:   {label:'Chile',    color:'#5cb87a',width:1.5,dash:[8,3]},
+  colombia:{label:'Colombia', color:'#9b7fe8',width:1.5,dash:[3,3]},
+  costarica:{label:'Costa Rica',color:'#e05c5c',width:1.5,dash:[2,2]},
+  sweden:  {label:'Sweden',   color:'#5cb87a',width:1.5,dash:[8,3]},
+  norway:  {label:'Norway',   color:'#e05c5c',width:1.5,dash:[6,3]},
+  netherlands:{label:'Netherlands',color:'#f5a623',width:1.5,dash:[4,2]},
+  switzerland:{label:'Switzerland',color:'#c0392b',width:1.5,dash:[3,3]},
+  germany: {label:'Germany',  color:'#5cb87a',width:1.5,dash:[8,3]},
+  france:  {label:'France',   color:'#9b7fe8',width:1.5,dash:[4,2]},
+  uk:      {label:'UK',       color:'#e05c5c',width:1.5,dash:[6,3]},
+  italy:   {label:'Italy',    color:'#e8a44a',width:1.5,dash:[3,3]},
+  australia:{label:'Australia',color:'#e05c5c',width:1.5,dash:[6,3]},
+  southkorea:{label:'S. Korea',color:'#9b7fe8',width:1.5,dash:[4,2]},
+  japan:   {label:'Japan',    color:'#7a9bb5',width:1.5,dash:[2,2]},
+  israel:  {label:'Israel',   color:'#5cb87a',width:1.5,dash:[8,3]}
+};
+
+// Region definitions — usa always first
+const INTL_REGIONS={
+  europe:  ['usa','sweden','norway','netherlands','switzerland','germany','france','uk','italy'],
+  americas:['usa','canada','mexico','chile','colombia','costarica'],
+  asia:    ['usa','australia','southkorea','japan','israel'],
+  g7:      ['usa','canada','france','germany','italy','uk','japan']
+};
+
+let intlActiveRegion='europe';
+
+// ── ALL DATA SERIES ──────────────────────────────────────────────────────────
+// Chart 1: Tax Revenue % GDP — OECD Revenue Statistics 2025, Table 3.1
 const INTL_TAX={
   years:[2015,2016,2017,2018,2019,2020,2021,2022,2023,2024],
-  usa:  [25.9,26.0,26.8,26.8,24.5,25.5,26.6,27.7,27.1,25.6],
-  uk:   [32.4,32.8,33.4,33.5,33.5,33.2,34.6,35.3,35.3,35.1],
-  france:[45.0,45.4,46.2,46.1,45.0,44.5,45.1,45.3,44.8,43.5],
-  germany:[36.6,37.0,37.5,38.2,38.8,37.3,38.4,39.3,38.4,37.8],
-  italy:[42.7,42.4,42.2,41.7,42.3,42.8,43.0,43.2,43.0,42.8],
-  canada:[32.7,32.5,33.0,33.0,33.0,34.4,33.3,33.0,33.1,33.2],
-  japan:[30.6,30.6,30.7,31.4,31.7,31.8,32.7,32.5,32.4,32.2]
+  usa:      [25.9,26.0,26.8,26.8,24.5,25.5,26.6,27.7,27.1,25.6],
+  canada:   [32.7,32.5,33.0,33.0,33.0,34.4,33.3,33.0,33.1,33.2],
+  mexico:   [16.2,16.6,16.1,16.1,16.5,18.3,17.7,18.6,17.7,18.3],
+  chile:    [20.7,20.2,20.8,21.1,21.0,21.2,22.9,24.0,23.0,22.8],
+  colombia: [19.8,19.3,19.4,19.7,20.4,20.1,20.0,22.1,20.1,19.5],
+  costarica:[22.1,22.4,23.0,23.0,24.0,24.2,25.0,25.6,26.1,26.3],
+  sweden:   [43.1,44.1,44.0,43.9,42.8,42.6,42.6,41.3,41.1,41.3],
+  norway:   [38.7,39.0,39.3,39.4,39.8,40.0,42.0,49.5,42.6,41.5],
+  netherlands:[37.4,38.0,38.4,39.0,39.3,39.7,40.0,39.7,40.4,39.8],
+  switzerland:[27.8,27.8,27.8,28.5,28.5,28.5,28.8,27.8,28.7,28.5],
+  germany:  [36.6,37.0,37.5,38.2,38.8,37.3,38.4,39.3,38.4,37.8],
+  france:   [45.0,45.4,46.2,46.1,45.0,44.5,45.1,45.3,44.8,43.5],
+  uk:       [32.4,32.8,33.4,33.5,33.5,33.2,34.6,35.3,35.3,35.1],
+  italy:    [42.7,42.4,42.2,41.7,42.3,42.8,43.0,43.2,43.0,42.8],
+  australia:[28.0,28.2,28.5,28.8,28.6,28.7,29.6,30.3,30.6,null],
+  southkorea:[25.2,26.2,26.9,28.4,27.3,27.5,29.9,32.0,29.0,28.5],
+  japan:    [30.6,30.6,30.7,31.4,31.7,31.8,32.7,32.5,32.4,32.2],
+  israel:   [31.7,31.8,31.5,32.0,31.2,30.5,32.7,33.0,31.6,32.0]
 };
 
-// Chart 2: Fiscal Deficit % GDP (IMF WEO Oct 2024) — negative = deficit
+// Chart 2: Fiscal Deficit % GDP — IMF WEO Oct 2024 (negative = deficit)
 const INTL_DEF={
   years:[2015,2016,2017,2018,2019,2020,2021,2022,2023,2024],
-  usa:  [-3.5,-4.3,-3.4,-4.2,-4.7,-14.7,-11.0,-4.1,-8.7,-7.1],
-  uk:   [-4.5,-3.3,-2.5,-2.3,-2.5,-12.8,-7.9,-5.4,-5.0,-4.6],
-  france:[-3.6,-3.6,-3.0,-2.3,-3.1,-9.0,-6.5,-4.8,-5.5,-5.5],
-  germany:[-0.6,0.9,1.4,1.8,1.5,-4.3,-3.7,-2.5,-2.5,-1.9],
-  italy:[-2.6,-2.4,-2.4,-2.2,-1.5,-9.5,-8.9,-8.0,-7.2,-4.4],
-  canada:[-0.1,0.0,-0.4,0.2,-0.3,-10.9,-4.7,-0.6,-0.2,-1.3],
-  japan:[-3.8,-3.7,-3.1,-2.5,-3.2,-9.1,-6.3,-5.6,-5.3,-4.8]
+  usa:      [-3.5,-4.3,-3.4,-4.2,-4.7,-14.7,-11.0,-4.1,-8.7,-7.1],
+  canada:   [-0.1,0.0,-0.4,0.2,-0.3,-10.9,-4.7,-0.6,-0.2,-1.3],
+  mexico:   [-3.5,-2.9,-1.1,-2.2,-1.7,-4.5,-3.7,-4.5,-5.0,-5.9],
+  chile:    [1.7,-2.7,-2.8,-1.8,-2.9,-7.3,0.5,1.6,-2.4,-2.1],
+  colombia: [-3.0,-4.0,-3.7,-3.9,-2.5,-7.8,-7.1,-5.7,-4.3,-5.5],
+  costarica:[-6.0,-5.2,-6.2,-5.9,-7.1,-8.3,-4.4,-2.2,-1.1,-0.8],
+  sweden:   [0.0,1.0,1.4,0.8,-0.7,-2.8,-0.1,1.2,-0.6,-1.7],
+  norway:   [5.9,3.9,4.8,7.7,6.8,-3.2,9.1,25.5,16.3,13.2],
+  netherlands:[1.8,0.0,1.2,1.4,1.7,-3.9,-2.5,-0.1,-0.3,-0.2],
+  switzerland:[0.7,0.4,1.2,1.3,1.3,-2.6,-1.5,0.8,0.7,0.5],
+  germany:  [-0.6,0.9,1.4,1.8,1.5,-4.3,-3.7,-2.5,-2.5,-1.9],
+  france:   [-3.6,-3.6,-3.0,-2.3,-3.1,-9.0,-6.5,-4.8,-5.5,-5.5],
+  uk:       [-4.5,-3.3,-2.5,-2.3,-2.5,-12.8,-7.9,-5.4,-5.0,-4.6],
+  italy:    [-2.6,-2.4,-2.4,-2.2,-1.5,-9.5,-8.9,-8.0,-7.2,-4.4],
+  australia:[-2.5,-2.1,-0.8,-0.7,0.0,-6.6,-5.5,-0.7,0.9,0.3],
+  southkorea:[0.4,-0.2,1.1,2.5,0.6,-3.7,-1.5,1.3,-2.8,-1.4],
+  japan:    [-3.8,-3.7,-3.1,-2.5,-3.2,-9.1,-6.3,-5.6,-5.3,-4.8],
+  israel:   [-1.4,-0.6,0.0,-3.1,3.8,-11.6,-3.8,0.6,-4.2,-6.8]
 };
 
-// Chart 3: Total Debt % GDP (IMF WEO Oct 2024)
+// Chart 3: Debt % GDP — IMF WEO Oct 2024
 const INTL_DEBT_GDP={
   years:[2015,2016,2017,2018,2019,2020,2021,2022,2023,2024],
-  usa:  [104.8,106.6,105.9,106.8,108.7,130.7,126.1,121.6,122.3,123.8],
-  uk:   [87.9,87.8,87.1,85.8,85.4,103.2,104.2,101.1,103.8,101.2],
-  france:[95.6,98.0,98.4,98.1,97.4,114.1,112.6,111.6,109.9,110.6],
-  germany:[71.2,68.5,65.0,61.8,59.7,68.9,69.7,66.5,63.6,62.7],
-  italy: [135.3,134.8,134.3,134.8,134.8,154.8,149.9,141.7,137.3,134.6],
-  canada:[91.0,91.5,89.8,89.0,87.0,117.6,113.1,106.2,107.4,107.8],
-  japan: [228.7,232.5,231.4,232.8,235.0,258.7,255.4,261.3,255.2,252.4]
+  usa:      [104.8,106.6,105.9,106.8,108.7,130.7,126.1,121.6,122.3,123.8],
+  canada:   [91.0,91.5,89.8,89.0,87.0,117.6,113.1,106.2,107.4,107.8],
+  mexico:   [53.6,57.8,54.3,53.6,52.7,60.5,59.6,56.6,53.1,52.4],
+  chile:    [17.3,21.3,23.6,26.0,28.3,32.5,36.3,38.0,39.0,40.2],
+  colombia: [50.5,50.2,49.4,51.5,51.5,65.8,67.5,62.0,57.6,58.2],
+  costarica:[44.9,49.2,52.3,57.0,60.2,68.3,68.0,64.5,62.0,58.8],
+  sweden:   [43.9,42.3,40.7,38.8,35.0,39.6,36.4,33.0,31.2,32.0],
+  norway:   [32.0,36.0,36.8,39.5,40.5,46.2,43.0,41.0,44.5,55.1],
+  netherlands:[64.6,61.8,56.9,52.4,48.5,54.3,51.7,50.1,46.5,44.5],
+  switzerland:[41.2,40.2,39.2,38.3,37.7,43.2,40.5,38.9,39.0,35.0],
+  germany:  [71.2,68.5,65.0,61.8,59.7,68.9,69.7,66.5,63.6,62.7],
+  france:   [95.6,98.0,98.4,98.1,97.4,114.1,112.6,111.6,109.9,110.6],
+  uk:       [87.9,87.8,87.1,85.8,85.4,103.2,104.2,101.1,103.8,101.2],
+  italy:    [135.3,134.8,134.3,134.8,134.8,154.8,149.9,141.7,137.3,134.6],
+  australia:[41.5,41.5,41.3,41.6,45.0,57.8,62.3,56.8,51.9,48.5],
+  southkorea:[37.8,38.9,38.7,37.6,37.6,47.9,51.3,54.3,55.3,55.7],
+  japan:    [228.7,232.5,231.4,232.8,235.0,258.7,255.4,261.3,255.2,252.4],
+  israel:   [64.3,62.6,60.4,60.6,59.5,71.9,67.9,60.5,62.1,67.6]
 };
-// Nominal debt USD trillions (approx from IMF)
 const INTL_DEBT_NOM={
   years:[2015,2016,2017,2018,2019,2020,2021,2022,2023,2024],
-  usa:  [18.1,19.4,20.2,21.6,23.0,27.7,28.4,24.9,26.9,28.9],
-  uk:   [2.15,2.23,2.37,2.42,2.55,2.97,2.97,2.58,2.74,2.75],
-  france:[2.47,2.54,2.61,2.71,2.87,3.31,3.25,2.89,3.10,3.25],
-  germany:[1.92,1.92,2.02,2.06,2.11,2.43,2.48,2.02,2.27,2.38],
-  italy: [2.36,2.40,2.49,2.57,2.68,3.07,3.00,2.47,2.81,2.97],
-  canada:[1.55,1.53,1.64,1.67,1.72,2.05,2.10,1.80,2.10,2.20],
-  japan: [10.16,10.27,10.68,11.35,11.86,12.58,12.64,7.96,9.21,9.50]
+  usa:      [18.1,19.4,20.2,21.6,23.0,27.7,28.4,24.9,26.9,28.9],
+  canada:   [1.55,1.53,1.64,1.67,1.72,2.05,2.10,1.80,2.10,2.20],
+  mexico:   [0.62,0.68,0.65,0.63,0.63,0.77,0.72,0.67,0.72,0.73],
+  chile:    [0.03,0.04,0.05,0.06,0.07,0.09,0.11,0.11,0.11,0.12],
+  colombia: [0.16,0.16,0.16,0.18,0.18,0.24,0.24,0.24,0.22,0.22],
+  costarica:[0.03,0.03,0.03,0.04,0.04,0.05,0.05,0.05,0.05,0.05],
+  sweden:   [0.22,0.21,0.22,0.23,0.22,0.26,0.26,0.19,0.22,0.23],
+  norway:   [0.14,0.15,0.17,0.19,0.20,0.21,0.22,0.21,0.21,0.22],
+  netherlands:[0.53,0.52,0.54,0.56,0.57,0.67,0.72,0.64,0.70,0.71],
+  switzerland:[0.29,0.28,0.29,0.29,0.29,0.34,0.34,0.30,0.32,0.32],
+  germany:  [1.92,1.92,2.02,2.06,2.11,2.43,2.48,2.02,2.27,2.38],
+  france:   [2.47,2.54,2.61,2.71,2.87,3.31,3.25,2.89,3.10,3.25],
+  uk:       [2.15,2.23,2.37,2.42,2.55,2.97,2.97,2.58,2.74,2.75],
+  italy:    [2.36,2.40,2.49,2.57,2.68,3.07,3.00,2.47,2.81,2.97],
+  australia:[0.60,0.61,0.64,0.66,0.72,0.88,0.92,0.81,0.83,0.87],
+  southkorea:[0.62,0.63,0.73,0.80,0.82,1.03,1.14,1.08,1.13,1.19],
+  japan:    [10.16,10.27,10.68,11.35,11.86,12.58,12.64,7.96,9.21,9.50],
+  israel:   [0.26,0.27,0.29,0.32,0.35,0.42,0.47,0.45,0.47,0.55]
 };
 
-// Chart 4: Defense % GDP (NATO June 2025; SIPRI for Japan)
+// Chart 4: Defense % GDP — NATO June 2025; SIPRI for non-NATO
 const INTL_DEFENSE={
   years:[2015,2016,2017,2018,2019,2020,2021,2022,2023,2024,2025],
-  usa:  [3.3,3.2,3.1,3.1,3.4,3.7,3.5,3.5,3.4,3.4,3.4],
-  uk:   [2.0,1.9,1.8,1.8,1.7,2.2,2.3,2.2,2.3,2.3,2.5],
-  france:[1.8,1.8,1.8,1.8,1.9,2.1,2.1,2.1,2.1,2.1,2.1],
-  germany:[1.2,1.2,1.2,1.2,1.3,1.4,1.5,1.5,1.6,2.1,2.1],
-  italy:[1.0,1.1,1.1,1.2,1.2,1.4,1.5,1.5,1.5,1.5,1.6],
-  canada:[1.0,1.2,1.3,1.4,1.3,1.4,1.4,1.3,1.4,1.8,2.0],
-  japan:[1.0,1.0,0.9,0.9,0.9,1.0,1.0,1.1,1.2,1.4,1.6]
+  usa:      [3.3,3.2,3.1,3.1,3.4,3.7,3.5,3.5,3.4,3.4,3.4],
+  canada:   [1.0,1.2,1.3,1.4,1.3,1.4,1.4,1.3,1.4,1.8,2.0],
+  mexico:   [0.6,0.6,0.5,0.5,0.5,0.6,0.7,0.7,0.7,0.7,0.7],
+  chile:    [1.9,1.8,1.9,1.9,2.0,2.0,2.0,2.0,2.0,2.0,2.0],
+  colombia: [3.3,3.2,3.2,3.1,3.1,3.1,3.1,3.0,3.0,3.0,2.9],
+  costarica:[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],
+  sweden:   [1.1,1.0,1.0,1.0,1.1,1.2,1.3,1.3,1.7,2.1,2.4],
+  norway:   [1.5,1.6,1.6,1.7,1.8,2.0,1.9,1.9,2.0,2.2,2.6],
+  netherlands:[1.1,1.2,1.2,1.4,1.4,1.5,1.5,1.5,1.7,2.1,2.2],
+  switzerland:[0.7,0.7,0.7,0.7,0.7,0.7,0.7,0.7,0.7,0.8,0.9],
+  germany:  [1.2,1.2,1.2,1.2,1.3,1.4,1.5,1.5,1.6,2.1,2.1],
+  france:   [1.8,1.8,1.8,1.8,1.9,2.1,2.1,2.1,2.1,2.1,2.1],
+  uk:       [2.0,1.9,1.8,1.8,1.7,2.2,2.3,2.2,2.3,2.3,2.5],
+  italy:    [1.0,1.1,1.1,1.2,1.2,1.4,1.5,1.5,1.5,1.5,1.6],
+  australia:[1.9,2.0,2.0,2.0,2.0,2.2,2.1,2.1,2.0,2.1,2.3],
+  southkorea:[2.6,2.6,2.6,2.6,2.8,2.8,2.8,2.9,2.8,2.9,2.9],
+  japan:    [1.0,1.0,0.9,0.9,0.9,1.0,1.0,1.1,1.2,1.4,1.6],
+  israel:   [5.2,5.7,5.5,5.4,5.3,5.6,5.6,4.5,5.2,8.4,8.8]
 };
 
-// Chart 5: Health % GDP (OECD Health at a Glance 2025)
+// Chart 5: Health % GDP — OECD Health at a Glance 2025
 const INTL_HEALTH={
   years:[2015,2016,2017,2018,2019,2020,2021,2022,2023],
-  usa:  [16.5,17.0,17.0,16.9,17.0,19.7,18.3,17.4,17.2],
-  uk:   [9.8,9.8,9.8,9.9,10.0,12.0,11.9,11.3,10.4],
-  france:[11.0,11.1,11.2,11.2,11.2,12.2,12.3,12.1,12.0],
-  germany:[11.0,11.1,11.3,11.5,11.7,12.9,12.9,12.7,12.3],
-  italy:[8.8,8.8,8.7,8.7,8.7,9.7,9.6,9.0,9.1],
-  canada:[10.5,10.5,10.5,10.5,10.8,13.0,12.7,12.0,11.9],
-  japan:[10.7,10.8,10.9,10.8,11.0,12.0,11.6,11.5,11.5]
+  usa:      [16.5,17.0,17.0,16.9,17.0,19.7,18.3,17.4,17.2],
+  canada:   [10.5,10.5,10.5,10.5,10.8,13.0,12.7,12.0,11.9],
+  mexico:   [5.8,5.5,5.5,5.4,5.5,6.2,6.3,5.9,5.8],
+  chile:    [8.5,8.6,8.6,8.8,9.0,10.5,10.8,10.3,10.1],
+  colombia: [7.2,7.2,7.2,7.2,7.7,9.2,9.5,9.0,8.8],
+  costarica:[7.5,7.4,7.6,7.7,7.5,8.7,8.8,8.5,8.3],
+  sweden:   [11.0,11.0,11.0,11.0,11.0,11.8,11.9,11.5,11.3],
+  norway:   [10.0,10.0,10.4,10.4,10.5,11.4,11.5,11.4,11.2],
+  netherlands:[10.2,10.4,10.4,10.4,10.4,11.4,11.5,11.3,11.2],
+  switzerland:[11.9,12.1,12.1,11.8,11.2,11.8,11.7,11.7,11.5],
+  germany:  [11.0,11.1,11.3,11.5,11.7,12.9,12.9,12.7,12.3],
+  france:   [11.0,11.1,11.2,11.2,11.2,12.2,12.3,12.1,12.0],
+  uk:       [9.8,9.8,9.8,9.9,10.0,12.0,11.9,11.3,10.4],
+  italy:    [8.8,8.8,8.7,8.7,8.7,9.7,9.6,9.0,9.1],
+  australia:[9.3,9.3,9.3,9.4,9.5,10.7,10.7,10.7,10.2],
+  southkorea:[7.1,7.6,7.6,7.9,8.2,9.0,9.3,9.7,9.7],
+  japan:    [10.7,10.8,10.9,10.8,11.0,12.0,11.6,11.5,11.5],
+  israel:   [7.4,7.4,7.5,7.5,7.5,8.2,8.3,8.3,8.3]
 };
 
-// Chart 6: Public Education % GDP (OECD Education at a Glance 2025)
+// Chart 6: Public Education % GDP — OECD Education at a Glance 2025
 const INTL_EDU={
   years:[2015,2016,2017,2018,2019,2020,2021,2022],
-  usa:  [5.4,5.4,5.2,5.2,5.1,5.5,5.5,5.3],
-  uk:   [5.2,5.1,5.0,4.7,4.7,5.3,5.4,5.1],
-  france:[5.4,5.4,5.4,5.3,5.3,5.7,5.6,5.5],
-  germany:[4.3,4.4,4.4,4.5,4.5,4.8,4.9,4.8],
-  italy:[3.9,3.8,3.8,3.8,4.0,4.5,4.4,4.2],
-  canada:[5.3,5.3,5.3,5.2,5.2,6.0,5.9,5.8],
-  japan:[3.2,3.2,3.2,3.1,3.3,3.7,3.8,3.8]
+  usa:      [5.4,5.4,5.2,5.2,5.1,5.5,5.5,5.3],
+  canada:   [5.3,5.3,5.3,5.2,5.2,6.0,5.9,5.8],
+  mexico:   [4.4,4.4,4.3,4.3,4.3,4.5,4.4,4.4],
+  chile:    [5.0,5.1,5.1,5.1,5.4,5.8,5.7,5.6],
+  colombia: [5.0,4.9,4.9,4.9,5.1,5.2,5.3,5.3],
+  costarica:[7.4,7.4,7.0,7.0,6.9,7.0,7.1,7.0],
+  sweden:   [6.6,6.5,6.5,6.5,6.4,6.8,6.8,6.7],
+  norway:   [6.4,6.5,6.4,6.3,6.2,6.5,6.6,6.5],
+  netherlands:[5.2,5.3,5.3,5.3,5.3,5.5,5.4,5.3],
+  switzerland:[5.2,5.2,5.1,5.0,5.1,5.4,5.3,5.2],
+  germany:  [4.3,4.4,4.4,4.5,4.5,4.8,4.9,4.8],
+  france:   [5.4,5.4,5.4,5.3,5.3,5.7,5.6,5.5],
+  uk:       [5.2,5.1,5.0,4.7,4.7,5.3,5.4,5.1],
+  italy:    [3.9,3.8,3.8,3.8,4.0,4.5,4.4,4.2],
+  australia:[5.3,5.3,5.3,5.2,5.2,5.7,5.7,5.5],
+  southkorea:[4.6,4.6,4.6,4.6,4.6,5.1,5.1,5.1],
+  japan:    [3.2,3.2,3.2,3.1,3.3,3.7,3.8,3.8],
+  israel:   [6.1,6.1,6.0,6.0,6.0,6.5,6.4,6.3]
 };
 
-// Chart 7: Total R&D (GERD) % GDP (OECD MSTI March 2025)
+// Chart 7: R&D (GERD) % GDP — OECD MSTI March 2025
 const INTL_RD={
   years:[2015,2016,2017,2018,2019,2020,2021,2022,2023],
-  usa:  [2.7,2.8,2.8,3.0,3.1,3.4,3.5,3.6,3.6],
-  uk:   [1.7,1.7,1.7,1.7,1.7,1.8,1.8,1.9,1.9],
-  france:[2.2,2.2,2.2,2.2,2.2,2.4,2.4,2.2,2.2],
-  germany:[2.9,2.9,3.0,3.1,3.2,3.1,3.1,3.1,3.1],
-  italy:[1.3,1.3,1.3,1.4,1.5,1.5,1.5,1.5,1.6],
-  canada:[1.6,1.5,1.5,1.6,1.7,1.8,1.8,1.8,1.7],
-  japan:[3.2,3.1,3.2,3.3,3.2,3.3,3.3,3.5,3.4]
+  usa:      [2.7,2.8,2.8,3.0,3.1,3.4,3.5,3.6,3.6],
+  canada:   [1.6,1.5,1.5,1.6,1.7,1.8,1.8,1.8,1.7],
+  mexico:   [0.5,0.5,0.4,0.3,0.3,0.3,0.3,0.3,0.3],
+  chile:    [0.4,0.4,0.4,0.3,0.3,0.3,0.3,0.3,0.3],
+  colombia: [0.3,0.3,0.3,0.2,0.2,0.3,0.3,0.3,0.3],
+  costarica:[0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4,0.4],
+  sweden:   [3.3,3.3,3.4,3.4,3.4,3.5,3.4,3.4,3.6],
+  norway:   [2.0,2.1,2.1,2.2,2.3,2.4,2.4,2.4,2.3],
+  netherlands:[2.0,2.0,2.0,2.1,2.2,2.3,2.3,2.3,2.4],
+  switzerland:[3.4,3.4,3.4,3.4,3.4,3.4,3.5,3.4,3.4],
+  germany:  [2.9,2.9,3.0,3.1,3.2,3.1,3.1,3.1,3.1],
+  france:   [2.2,2.2,2.2,2.2,2.2,2.4,2.4,2.2,2.2],
+  uk:       [1.7,1.7,1.7,1.7,1.7,1.8,1.8,1.9,1.9],
+  italy:    [1.3,1.3,1.3,1.4,1.5,1.5,1.5,1.5,1.6],
+  australia:[1.9,1.9,1.8,1.8,1.8,1.8,1.8,1.8,1.8],
+  southkorea:[4.2,4.2,4.6,4.8,4.6,4.8,4.9,5.2,5.0],
+  japan:    [3.2,3.1,3.2,3.3,3.2,3.3,3.3,3.5,3.4],
+  israel:   [4.3,4.5,4.8,4.9,4.9,5.5,5.6,5.7,6.4]
 };
 
 let intlDebtMode='gdp';
 let intlCharts={};
 
-function intlMakeDatasets(data,yearsArr){
-  return INTL_COUNTRIES.map(c=>({
+function intlGetActiveCountries(){
+  return INTL_REGIONS[intlActiveRegion].map(id=>({id,...INTL_ALL_COUNTRIES[id]}));
+}
+
+function intlUpdateLegend(){
+  const countries=intlGetActiveCountries();
+  const el=document.getElementById('intl-region-legend');
+  if(!el)return;
+  el.innerHTML=countries.map(c=>`<span style="display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text)"><span style="width:22px;height:${c.id==='usa'?3:2}px;background:${c.color};display:inline-block;border-radius:2px"></span>${c.label}</span>`).join('');
+}
+
+function intlMakeDatasets(data){
+  const countries=intlGetActiveCountries();
+  return countries.map(c=>({
     label:c.label,
-    data:yearsArr.map((y,i)=>data[c.id]?.[i]??null),
+    data:data.years.map((y,i)=>data[c.id]?.[i]??null),
     borderColor:c.color,
     backgroundColor:'transparent',
     borderWidth:c.width,
@@ -1010,62 +1198,77 @@ function intlMakeDatasets(data,yearsArr){
   }));
 }
 
-function intlMakeOpts(yLabel,invertY){
+function intlMakeOpts(invertY,isNom){
   return {
     responsive:true,maintainAspectRatio:false,
     plugins:{
-      legend:{display:true,position:'bottom',labels:{font:{size:10},color:'#8fa4be',padding:10,boxWidth:20}},
-      tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': '+(ctx.parsed.y!==null?ctx.parsed.y.toFixed(1)+'%':'n/a')}}
+      legend:{display:true,position:'bottom',labels:{font:{size:10},color:'#8fa4be',padding:8,boxWidth:18}},
+      tooltip:{callbacks:{label:ctx=>{
+        const v=ctx.parsed.y;
+        if(v===null)return ctx.dataset.label+': n/a';
+        return ctx.dataset.label+': '+(isNom?'$'+v.toFixed(1)+'T':v.toFixed(1)+'%');
+      }}}
     },
     scales:{
       x:{ticks:{font:{size:10},color:'#4d6480'},grid:{color:'rgba(255,255,255,0.04)'}},
       y:{
         reverse:invertY||false,
-        ticks:{font:{size:10},color:'#4d6480',callback:v=>v.toFixed(1)+'%'},
-        grid:{color:'rgba(255,255,255,0.06)'},
-        title:{display:!!yLabel,text:yLabel||'',color:'#4d6480',font:{size:10}}
+        ticks:{font:{size:10},color:'#4d6480',callback:v=>isNom?'$'+v.toFixed(0)+'T':v.toFixed(1)+'%'},
+        grid:{color:'rgba(255,255,255,0.06)'}
       }
     }
   };
 }
 
-function intlBuildChart(canvasId,data,invertY,yLabel,tooltipFn){
+function intlBuildChart(canvasId,data,invertY){
   if(intlCharts[canvasId])intlCharts[canvasId].destroy();
-  const ds=intlMakeDatasets(data,data.years);
-  const opts=intlMakeOpts(yLabel,invertY);
-  if(tooltipFn)opts.plugins.tooltip.callbacks.label=tooltipFn;
-  intlCharts[canvasId]=new Chart(document.getElementById(canvasId),{
-    type:'line',data:{labels:data.years.map(String),datasets:ds},options:opts
+  const cv=document.getElementById(canvasId);if(!cv)return;
+  intlCharts[canvasId]=new Chart(cv,{
+    type:'line',
+    data:{labels:data.years.map(String),datasets:intlMakeDatasets(data)},
+    options:intlMakeOpts(invertY,false)
   });
 }
 
 function intlBuildDebt(){
   const d=intlDebtMode==='gdp'?INTL_DEBT_GDP:INTL_DEBT_NOM;
-  const isGdp=intlDebtMode==='gdp';
-  const tooltipFn=ctx=>{
-    const v=ctx.parsed.y;
-    return ctx.dataset.label+': '+(v!==null?(isGdp?v.toFixed(1)+'% GDP':'$'+v.toFixed(1)+'T'):'n/a');
-  };
+  const isNom=intlDebtMode==='nom';
   if(intlCharts['intlDebtC'])intlCharts['intlDebtC'].destroy();
-  const ds=intlMakeDatasets(d,d.years);
-  const opts={
-    responsive:true,maintainAspectRatio:false,
-    plugins:{
-      legend:{display:true,position:'bottom',labels:{font:{size:10},color:'#8fa4be',padding:10,boxWidth:20}},
-      tooltip:{callbacks:{label:tooltipFn}}
-    },
-    scales:{
-      x:{ticks:{font:{size:10},color:'#4d6480'},grid:{color:'rgba(255,255,255,0.04)'}},
-      y:{
-        ticks:{font:{size:10},color:'#4d6480',callback:v=>isGdp?v.toFixed(0)+'%':'$'+v.toFixed(1)+'T'},
-        grid:{color:'rgba(255,255,255,0.06)'}
-      }
-    }
-  };
-  intlCharts['intlDebtC']=new Chart(document.getElementById('intlDebtC'),{
-    type:'line',data:{labels:d.years.map(String),datasets:ds},options:opts
+  const cv=document.getElementById('intlDebtC');if(!cv)return;
+  intlCharts['intlDebtC']=new Chart(cv,{
+    type:'line',
+    data:{labels:d.years.map(String),datasets:intlMakeDatasets(d)},
+    options:intlMakeOpts(false,isNom)
   });
 }
+
+function intlRebuildAll(){
+  intlUpdateLegend();
+  intlBuildChart('intlTaxC',INTL_TAX,false);
+  intlBuildChart('intlDefC',INTL_DEF,true);
+  intlBuildDebt();
+  // Only rebuild spending charts if they've been initialised
+  if(intlCharts['intlDefenseC']){
+    intlBuildChart('intlDefenseC',INTL_DEFENSE,false);
+    intlBuildChart('intlHealthC',INTL_HEALTH,false);
+    intlBuildChart('intlEduC',INTL_EDU,false);
+    intlBuildChart('intlRDC',INTL_RD,false);
+  }
+  if(intlCharts['intlGdpPcC']){
+    intlBuildEconomicCharts();
+  }
+}
+
+function intlSetRegion(region){
+  intlActiveRegion=region;
+  // Update button styles
+  ['europe','americas','asia','g7'].forEach(r=>{
+    const b=document.getElementById('intl-rgn-'+r);
+    if(b){b.classList.toggle('act',r===region);}
+  });
+  intlRebuildAll();
+}
+window.intlSetRegion=intlSetRegion;
 
 function intlDebtToggle(mode){
   intlDebtMode=mode;
@@ -1077,24 +1280,315 @@ function intlDebtToggle(mode){
 function intlShowTab(tab){
   document.getElementById('intl-fiscal').style.display=tab==='fiscal'?'block':'none';
   document.getElementById('intl-spending').style.display=tab==='spending'?'block':'none';
+  document.getElementById('intl-economic').style.display=tab==='economic'?'block':'none';
   document.getElementById('intl-tab-fiscal').classList.toggle('act',tab==='fiscal');
   document.getElementById('intl-tab-spending').classList.toggle('act',tab==='spending');
-  // lazy init spending charts
+  document.getElementById('intl-tab-economic').classList.toggle('act',tab==='economic');
   if(tab==='spending'&&!intlCharts['intlDefenseC']){
-    intlBuildChart('intlDefenseC',INTL_DEFENSE,false,'% of GDP');
-    intlBuildChart('intlHealthC',INTL_HEALTH,false,'% of GDP');
-    intlBuildChart('intlEduC',INTL_EDU,false,'% of GDP');
-    intlBuildChart('intlRDC',INTL_RD,false,'% of GDP');
+    intlBuildChart('intlDefenseC',INTL_DEFENSE,false);
+    intlBuildChart('intlHealthC',INTL_HEALTH,false);
+    intlBuildChart('intlEduC',INTL_EDU,false);
+    intlBuildChart('intlRDC',INTL_RD,false);
+    intlInjectExpandButtons();
+  }
+  if(tab==='economic'&&!intlCharts['intlGdpPcC']){
+    intlBuildEconomicCharts();
+    intlInjectExpandButtons();
   }
 }
 window.intlShowTab=intlShowTab;
 window.intlDebtToggle=intlDebtToggle;
 
 function initIntl(){
-  intlBuildChart('intlTaxC',INTL_TAX,false,'% of GDP');
-  intlBuildChart('intlDefC',INTL_DEF,true,'% of GDP (inverted — larger deficits at top)');
+  intlActiveRegion='europe';
+  intlUpdateLegend();
+  intlBuildChart('intlTaxC',INTL_TAX,false);
+  intlBuildChart('intlDefC',INTL_DEF,true);
   intlBuildDebt();
 }
+
+// ── ECONOMIC TAB DATA ────────────────────────────────────────────────────────
+
+// Chart 8: GDP per capita PPP, current international $ thousands
+// Source: IMF WEO Apr 2026 / World Bank WDI
+const INTL_GDPPC={
+  years:[2015,2016,2017,2018,2019,2020,2021,2022,2023,2024],
+  usa:      [56.8,58.0,60.1,63.1,65.3,63.5,70.2,76.4,80.4,83.1],
+  canada:   [46.4,46.1,48.4,50.6,52.1,49.2,53.3,56.2,58.0,59.5],
+  mexico:   [18.3,18.5,19.2,20.0,20.1,18.9,20.2,21.4,22.5,23.1],
+  chile:    [23.5,24.1,25.2,26.5,27.1,25.5,28.2,30.0,30.7,31.2],
+  colombia: [14.5,14.7,15.1,15.7,16.4,15.6,16.9,18.2,19.1,19.8],
+  costarica:[16.5,17.2,18.0,18.9,19.6,19.3,20.5,22.1,23.8,25.2],
+  sweden:   [49.7,50.2,52.0,54.0,54.6,53.2,57.0,58.5,59.0,59.8],
+  norway:   [68.0,68.5,71.0,74.5,77.0,73.0,79.5,84.0,87.0,91.1],
+  netherlands:[52.5,53.5,55.5,58.0,60.0,58.0,62.5,66.0,67.5,68.5],
+  switzerland:[64.5,65.0,67.0,70.0,72.0,70.0,74.0,78.0,80.0,82.0],
+  germany:  [49.5,50.5,52.5,54.5,55.5,53.0,56.0,57.5,58.0,58.5],
+  france:   [42.5,43.0,44.5,46.5,47.5,45.0,48.0,50.5,51.5,52.5],
+  uk:       [42.5,42.0,43.5,45.5,46.5,44.0,47.0,49.5,51.0,52.0],
+  italy:    [38.5,39.0,40.5,42.0,42.5,40.0,43.0,45.5,46.5,47.5],
+  australia:[50.5,51.5,53.0,55.5,57.0,55.0,57.5,61.0,64.5,66.5],
+  southkorea:[37.5,39.0,41.0,43.5,44.5,44.0,47.5,52.0,53.5,55.5],
+  japan:    [41.5,42.5,44.0,45.0,45.5,43.5,46.0,47.0,47.5,49.0],
+  israel:   [36.5,38.0,39.5,41.5,43.5,42.0,46.0,48.1,46.5,47.3]
+};
+
+// Chart 9: Real GDP growth % — IMF WEO Apr 2026
+const INTL_GDPGR={
+  years:[2015,2016,2017,2018,2019,2020,2021,2022,2023,2024],
+  usa:      [3.1,1.7,2.3,3.0,2.5,-2.8,5.9,2.1,2.5,2.8],
+  canada:   [0.7,1.0,3.0,2.4,1.9,-5.1,5.0,3.8,1.2,1.5],
+  mexico:   [3.3,2.6,2.1,2.2,-0.3,-8.0,5.7,3.9,3.2,1.5],
+  chile:    [2.4,1.7,1.3,3.7,1.1,-6.1,11.7,2.4,-0.2,2.6],
+  colombia: [3.0,2.1,1.4,2.6,3.3,-7.0,10.8,7.5,0.6,1.7],
+  costarica:[3.6,4.2,3.4,2.7,2.3,-4.5,7.8,4.6,5.1,4.0],
+  sweden:   [4.4,2.1,2.6,2.0,2.0,-2.9,5.4,2.8,-0.2,0.5],
+  norway:   [2.0,1.1,2.3,1.1,0.9,-1.3,3.9,3.3,0.5,1.1],
+  netherlands:[2.0,2.2,3.0,2.4,2.0,-3.9,6.2,4.3,0.1,0.9],
+  switzerland:[1.7,1.6,1.7,3.0,1.2,-2.4,5.4,2.7,0.7,1.5],
+  germany:  [1.5,2.2,2.6,1.5,1.1,-3.8,3.2,1.8,-0.3,-0.2],
+  france:   [1.1,1.1,2.3,1.8,1.8,-7.8,6.4,2.5,0.9,1.1],
+  uk:       [2.4,1.8,1.7,1.3,1.6,-11.0,8.7,4.3,0.3,1.1],
+  italy:    [0.8,1.3,1.7,0.9,0.5,-9.0,8.3,3.7,0.9,0.7],
+  australia:[2.4,2.8,2.4,2.8,1.9,-1.9,5.2,3.8,2.0,1.5],
+  southkorea:[2.8,2.9,3.2,2.9,2.2,-0.7,4.3,2.6,1.4,2.1],
+  japan:    [1.6,-0.4,2.2,0.6,-0.4,-4.1,2.1,1.0,1.9,0.3],
+  israel:   [2.7,4.5,3.6,3.5,3.8,-1.5,8.6,6.5,2.0,0.9]
+};
+
+// Chart 10: Unemployment rate % — OECD standardized rates
+const INTL_UNEMP={
+  years:[2015,2016,2017,2018,2019,2020,2021,2022,2023,2024],
+  usa:      [5.3,4.9,4.3,3.9,3.7,8.1,5.4,3.6,3.6,4.0],
+  canada:   [6.9,7.0,6.3,5.8,5.7,9.6,7.5,5.3,5.4,6.3],
+  mexico:   [4.3,3.9,3.4,3.3,3.5,4.4,4.1,3.3,2.8,2.7],
+  chile:    [6.3,6.5,6.7,7.2,7.1,10.8,8.9,7.9,8.5,8.5],
+  colombia: [9.8,9.8,9.7,9.7,10.5,16.1,13.8,11.3,10.1,9.9],
+  costarica:[9.6,9.5,9.1,10.3,11.8,20.0,17.3,13.4,9.2,8.5],
+  sweden:   [7.4,6.9,6.7,6.4,6.8,8.3,8.8,7.5,8.5,8.7],
+  norway:   [4.4,4.7,4.2,3.9,3.7,4.6,4.4,3.2,3.6,4.0],
+  netherlands:[6.9,6.0,4.9,3.8,3.4,3.8,4.2,3.5,3.6,3.7],
+  switzerland:[4.8,4.9,4.8,4.7,4.4,4.8,5.1,4.3,4.2,4.4],
+  germany:  [4.6,4.2,3.8,3.4,3.1,3.8,3.6,3.0,3.0,3.4],
+  france:   [10.4,10.0,9.4,9.0,8.4,7.9,7.9,7.3,7.3,7.5],
+  uk:       [5.3,4.9,4.4,4.1,3.8,4.6,4.5,3.7,4.0,4.4],
+  italy:    [11.9,11.7,11.2,10.6,9.9,9.2,9.5,8.1,6.7,6.1],
+  australia:[6.1,5.7,5.6,5.3,5.2,6.5,5.1,3.5,3.7,4.1],
+  southkorea:[3.6,3.7,3.7,3.8,3.8,4.0,3.7,2.9,2.7,2.8],
+  japan:    [3.4,3.1,2.8,2.4,2.4,2.8,2.8,2.6,2.6,2.5],
+  israel:   [5.3,4.8,4.2,4.0,3.8,4.3,5.0,3.7,3.5,3.5]
+};
+
+// Chart 11: CPI Inflation % — IMF WEO Apr 2026 / OECD CPI
+const INTL_INFL={
+  years:[2015,2016,2017,2018,2019,2020,2021,2022,2023,2024],
+  usa:      [0.1,1.3,2.1,2.4,1.8,1.2,4.7,8.0,4.1,2.9],
+  canada:   [1.1,1.4,1.6,2.3,1.9,0.7,3.4,6.8,3.9,2.4],
+  mexico:   [2.7,2.8,6.0,4.9,3.6,3.4,5.7,7.9,5.5,4.7],
+  chile:    [4.4,2.7,2.2,2.4,2.6,3.0,4.5,11.6,7.6,4.5],
+  colombia: [5.0,7.5,4.3,3.2,3.5,1.9,3.5,10.2,11.7,6.5],
+  costarica:[0.8,0.0,1.6,2.2,2.1,0.7,1.7,8.3,4.8,0.9],
+  sweden:   [0.0,1.0,1.8,2.0,1.7,0.5,2.7,8.4,8.5,2.3],
+  norway:   [2.2,3.6,1.8,2.8,2.2,1.3,3.5,5.8,5.5,3.2],
+  netherlands:[0.2,0.1,1.3,1.6,2.7,1.1,2.7,10.0,4.1,2.9],
+  switzerland:[-1.1,-0.4,0.5,0.9,0.4,-0.7,0.6,2.8,2.1,1.2],
+  germany:  [0.1,0.4,1.7,1.9,1.4,0.4,3.2,8.7,6.0,2.2],
+  france:   [0.1,0.3,1.2,2.1,1.3,0.5,2.1,5.9,5.7,2.3],
+  uk:       [0.0,0.7,2.7,2.5,1.8,0.9,2.6,9.1,7.3,2.6],
+  italy:    [0.1,-0.1,1.3,1.2,0.6,-0.1,1.9,8.7,5.9,1.0],
+  australia:[1.5,1.3,1.9,1.9,1.6,0.9,2.8,6.6,5.6,3.8],
+  southkorea:[0.7,1.0,1.9,1.5,0.4,0.5,2.5,5.1,3.6,2.3],
+  japan:    [0.8,-0.1,0.5,1.0,0.5,0.0,-0.2,2.5,3.3,2.7],
+  israel:   [-0.6,-0.5,0.2,0.8,0.8,-0.6,1.5,4.4,4.2,3.6]
+};
+
+function intlBuildEconomicCharts(){
+  // GDP per capita — tooltip in $k
+  if(intlCharts['intlGdpPcC'])intlCharts['intlGdpPcC'].destroy();
+  const gdpPcOpts=intlMakeOpts(false,false);
+  gdpPcOpts.plugins.tooltip.callbacks.label=ctx=>ctx.dataset.label+': $'+(ctx.parsed.y!==null?ctx.parsed.y.toFixed(1)+'k':'n/a');
+  gdpPcOpts.scales.y.ticks.callback=v=>'$'+v+'k';
+  intlCharts['intlGdpPcC']=new Chart(document.getElementById('intlGdpPcC'),{
+    type:'line',data:{labels:INTL_GDPPC.years.map(String),datasets:intlMakeDatasets(INTL_GDPPC)},options:gdpPcOpts
+  });
+  // GDP growth — % with zero reference line
+  if(intlCharts['intlGdpGrC'])intlCharts['intlGdpGrC'].destroy();
+  const gdpGrOpts=intlMakeOpts(false,false);
+  gdpGrOpts.plugins.annotation={annotations:{zero:{type:'line',yMin:0,yMax:0,borderColor:'rgba(255,255,255,0.15)',borderWidth:1}}};
+  intlCharts['intlGdpGrC']=new Chart(document.getElementById('intlGdpGrC'),{
+    type:'line',data:{labels:INTL_GDPGR.years.map(String),datasets:intlMakeDatasets(INTL_GDPGR)},options:gdpGrOpts
+  });
+  // Unemployment
+  intlBuildChart('intlUnempC',INTL_UNEMP,false);
+  // Inflation
+  intlBuildChart('intlInflC',INTL_INFL,false);
+}
+
+// Add mobile CSS for new canvases (handled by existing rule via id selector pattern)
+
+// ── INTL FULLSCREEN ──────────────────────────────────────────────────────────
+
+// Registry: canvasId → {title, subtitle, note, buildFn}
+// buildFn(canvasEl) rebuilds the chart onto the given canvas
+const INTL_FS_META={
+  intlTaxC:{
+    title:'Total Tax Revenue as % of GDP',
+    subtitle:'2015–2024 · All government levels incl. social contributions · OECD Revenue Statistics 2025',
+    note:'U.S. domestic figures often cite federal-only (~17%), not comparable to all-government totals used here. Norway elevated by petroleum; Chile sensitive to copper prices.',
+    build:c=>_fsBuild(c,INTL_TAX,false,false)
+  },
+  intlDefC:{
+    title:'Annual Fiscal Deficit as % of GDP',
+    subtitle:'2015–2024 · General government balance · IMF WEO October 2024',
+    note:'Y-axis inverted — larger deficits appear at top. Norway surpluses driven by petroleum/SWF returns; underlying non-oil deficit ~9–10% of mainland GDP. Israel swung to deficit after Oct 7 2023. U.S. 2023 partly inflated by student loan accounting (~1.3pp).',
+    build:c=>_fsBuild(c,INTL_DEF,true,false)
+  },
+  intlDebtC:{
+    title:'Total Government Debt',
+    subtitle:'2015–2024 · Gross government debt · IMF WEO October 2024',
+    note:'Japan gross debt (~255% GDP) overstates net obligations; large financial assets make net debt ~155% GDP. Norway gross debt (~55% GDP) largely offset by $2.1T GPFG sovereign wealth fund. Israel debt rose 9pp in two years due to war spending.',
+    build:c=>_fsBuildDebt(c)
+  },
+  intlDefenseC:{
+    title:'Defense Spending as % of GDP',
+    subtitle:'2015–2025 · NATO June 2025 estimates; SIPRI for non-NATO members',
+    note:'U.S. at 3.4% is ~double the former 2% NATO target. NATO\'s new target is 3.5% core defense by 2035. Israel surged to 8.4–8.8% in 2024–25 due to multi-front war — pre-war (2022) level was ~4.5%. Switzerland is not a NATO member.',
+    build:c=>_fsBuild(c,INTL_DEFENSE,false,false)
+  },
+  intlHealthC:{
+    title:'Total Health Spending as % of GDP',
+    subtitle:'2015–2023 · Total expenditure (public + private) · OECD Health at a Glance 2025',
+    note:'U.S. at 17.2% is nearly double Germany (12.3%), yet the U.S. has the lowest G7 life expectancy (78.4 yrs) and ~27.6M uninsured. Public share varies: UK ~81%, France ~77%, USA ~48%.',
+    build:c=>_fsBuild(c,INTL_HEALTH,false,false)
+  },
+  intlEduC:{
+    title:'Public Education Spending as % of GDP',
+    subtitle:'2015–2022 · Government expenditure all levels · OECD Education at a Glance 2025',
+    note:'G7 clustered at 3.8–5.8%. U.S. figure slightly inflated by university R&D. Japan\'s low public figure is offset by high private education spending. Costa Rica consistently spends ~7% — highest in the Americas.',
+    build:c=>_fsBuild(c,INTL_EDU,false,false)
+  },
+  intlRDC:{
+    title:'Total R&D Spending (GERD) as % of GDP',
+    subtitle:'2015–2023 · Gross expenditure, public + private · OECD MSTI March 2025',
+    note:'Public + private combined for comparability across countries. U.S. leads G7 at 3.6%. Israel leads all OECD at ~6.4%. South Korea at 5.0% is the Asia-Pacific leader. UK at 1.9% cited as a structural weakness. OECD average ~2.7%.',
+    build:c=>_fsBuild(c,INTL_RD,false,false)
+  },
+  intlGdpPcC:{
+    title:'GDP per Capita, PPP',
+    subtitle:'2015–2024 · Current international dollars (thousands) · IMF WEO Apr 2026 / World Bank WDI',
+    note:'PPP-adjusted for price level differences — better measure of living standards than nominal GDP. Norway and Switzerland elevated partly by oil wealth and financial sector wages respectively.',
+    build:c=>_fsBuildGdpPc(c)
+  },
+  intlGdpGrC:{
+    title:'Real GDP Growth Rate',
+    subtitle:'2015–2024 · Annual % change, inflation-adjusted · IMF WEO April 2026',
+    note:'2020 contraction visible across all countries (COVID). Costa Rica, South Korea, and Israel show strongest long-run growth. Germany has underperformed since 2022 (−0.3% in 2023, −0.2% in 2024).',
+    build:c=>_fsBuild(c,INTL_GDPGR,false,false)
+  },
+  intlUnempC:{
+    title:'Unemployment Rate',
+    subtitle:'2015–2024 · Standardized rate, % of labor force · OECD Labour Statistics 2025',
+    note:'OECD standardized rates are comparable across countries. Colombia\'s headline rate understates true underemployment given high informality (~60% of workforce). Italy\'s high structural rate reflects regional north-south divergence.',
+    build:c=>_fsBuild(c,INTL_UNEMP,false,false)
+  },
+  intlInflC:{
+    title:'Inflation Rate, CPI',
+    subtitle:'2015–2024 · Annual % change in consumer prices · IMF WEO Apr 2026 / OECD CPI',
+    note:'2021–2023 global inflation spike driven by supply chain disruptions and energy prices. Most OECD countries returned near target by 2024. Switzerland maintained the lowest inflation throughout the entire period.',
+    build:c=>_fsBuild(c,INTL_INFL,false,false)
+  }
+};
+
+let intlFsChart=null;
+let intlFsActive=null;
+
+// Generic fullscreen chart builder — mirrors intlBuildChart logic onto any canvas
+function _fsBuild(canvas,data,invertY,isNom){
+  if(intlFsChart){intlFsChart.destroy();intlFsChart=null;}
+  const opts=intlMakeOpts(invertY,isNom);
+  opts.plugins.legend.labels.font={size:12};
+  opts.plugins.legend.labels.padding=14;
+  intlFsChart=new Chart(canvas,{
+    type:'line',
+    data:{labels:data.years.map(String),datasets:intlMakeDatasets(data)},
+    options:opts
+  });
+}
+function _fsBuildDebt(canvas){
+  const d=intlDebtMode==='gdp'?INTL_DEBT_GDP:INTL_DEBT_NOM;
+  _fsBuild(canvas,d,false,intlDebtMode==='nom');
+}
+function _fsBuildGdpPc(canvas){
+  if(intlFsChart){intlFsChart.destroy();intlFsChart=null;}
+  const opts=intlMakeOpts(false,false);
+  opts.plugins.legend.labels.font={size:12};
+  opts.plugins.legend.labels.padding=14;
+  opts.plugins.tooltip.callbacks.label=ctx=>ctx.dataset.label+': $'+(ctx.parsed.y!==null?ctx.parsed.y.toFixed(1)+'k':'n/a');
+  opts.scales.y.ticks.callback=v=>'$'+v+'k';
+  intlFsChart=new Chart(canvas,{
+    type:'line',
+    data:{labels:INTL_GDPPC.years.map(String),datasets:intlMakeDatasets(INTL_GDPPC)},
+    options:opts
+  });
+}
+
+function intlOpenFullscreen(canvasId){
+  const meta=INTL_FS_META[canvasId];
+  if(!meta)return;
+  intlFsActive=canvasId;
+  document.getElementById('intl-fs-title').textContent=meta.title;
+  document.getElementById('intl-fs-subtitle').textContent=meta.subtitle;
+  const noteEl=document.getElementById('intl-fs-note');
+  if(meta.note){noteEl.innerHTML='<strong style="color:var(--amber)">Note:</strong> '+meta.note;noteEl.style.display='block';}
+  else{noteEl.style.display='none';}
+  const fs=document.getElementById('intl-fullscreen');
+  fs.classList.add('open');
+  document.body.style.overflow='hidden';
+  // Build chart on next frame so canvas has final dimensions
+  requestAnimationFrame(()=>{
+    const canvas=document.getElementById('intlFsC');
+    meta.build(canvas);
+  });
+}
+
+function intlCloseFullscreen(){
+  if(intlFsChart){intlFsChart.destroy();intlFsChart=null;}
+  document.getElementById('intl-fullscreen').classList.remove('open');
+  document.body.style.overflow='';
+  intlFsActive=null;
+}
+window.intlOpenFullscreen=intlOpenFullscreen;
+window.intlCloseFullscreen=intlCloseFullscreen;
+window.intlInjectExpandButtons=intlInjectExpandButtons;
+
+// Keyboard escape to close
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&intlFsActive)intlCloseFullscreen();});
+
+// Inject expand buttons onto every INTL chart card after DOM ready
+function intlInjectExpandButtons(){
+  Object.keys(INTL_FS_META).forEach(id=>{
+    const canvas=document.getElementById(id);
+    if(!canvas)return;
+    const card=canvas.closest('.card');
+    if(!card)return;
+    // Make card position:relative if not already
+    card.style.position='relative';
+    // Add click-to-expand on the canvas wrapper div
+    const wrap=canvas.parentElement;
+    wrap.style.cursor='zoom-in';
+    wrap.title='Click to expand';
+    wrap.addEventListener('click',()=>intlOpenFullscreen(id));
+    // Inject a small expand hint button
+    const btn=document.createElement('button');
+    btn.className='intl-expand-btn';
+    btn.innerHTML='⤢ expand';
+    btn.title='View fullscreen';
+    btn.addEventListener('click',e=>{e.stopPropagation();intlOpenFullscreen(id);});
+    card.appendChild(btn);
+  });
+}
+// Run after page load
+document.addEventListener('DOMContentLoaded',intlInjectExpandButtons);
 
 showPage('main');
 </script>
